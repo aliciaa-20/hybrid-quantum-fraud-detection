@@ -1,0 +1,23 @@
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dataset files
+data/*.csv
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+
+# Python environment files
+.env

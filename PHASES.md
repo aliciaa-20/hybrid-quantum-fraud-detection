@@ -69,10 +69,17 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
   robustness result for the paper's Result Analysis section.
 - Raw per-seed data: results/novelty/vqc_multiseed_raw.csv; summary: vqc_multiseed_summary.csv
 
-## Phase 4 — Feature Map / Ansatz Ablation
-- [ ] Feasibility: confirm PauliFeatureMap and EfficientSU2 construct at 4 qubits without error
-- [ ] Grid: {ZZFeatureMap, PauliFeatureMap} x {RealAmplitudes, EfficientSU2}, fixed seed/subset
-- [ ] Report table explaining which components drive performance
+## Phase 4 — Feature Map / Ansatz Ablation [x] DONE
+- [x] Confirmed in Phase 0 that PauliFeatureMap and EfficientSU2 construct cleanly at 4 qubits
+- [x] Ran the full 2x2 grid on the SMOTE training condition (best original VQC config),
+      full test set -- directly comparable to the original paper's Table 7
+- **Key finding**: RealAmplitudes clearly beats EfficientSU2 regardless of feature map
+  (F1 0.0288 vs 0.0177 with ZZFeatureMap; 0.0256 vs 0.0136 with PauliFeatureMap) -- ansatz
+  choice matters more than feature map choice here. The ORIGINAL paper's exact configuration
+  (ZZFeatureMap + RealAmplitudes) turns out to be the best of all 4 combinations tested, which
+  is a reassuring result: the original architecture choice wasn't arbitrary or suboptimal, it
+  was already the strongest available option among these alternatives.
+- Results: results/novelty/ablation_featuremap_ansatz.csv
 
 ## Phase 5 — Qubit-Count Scaling Study
 - [ ] Feasibility: check MI feature ranking supports selecting up to 8 features cleanly

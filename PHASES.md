@@ -37,12 +37,22 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
   optimal threshold — evidence the quantum classifier's probability outputs lack real
   separative power, i.e. this is not merely a threshold-choice problem for VQC.
 
-## Phase 2 — Quantum Kernel Classifier (QSVM)
-- [ ] Feasibility timing test: FidelityQuantumKernel on small train/test (e.g. 50x50) to
-      estimate per-evaluation cost before committing to dataset sizes
-- [ ] Decide justified train/test subsample sizes based on timing
-- [ ] Train QSVM (ZZFeatureMap kernel + SVC) on None/SMOTE/ADASYN, evaluate on subsample
-- [ ] Compare against VQC on the SAME subsample (fair comparison requires matching test set)
+## Phase 2 — Quantum Kernel Classifier (QSVM) [x] DONE
+- [x] Feasibility timing test (60x60 kernel): ~26.5 evals/sec symmetric, ~103 evals/sec
+      non-symmetric -> chose train=120 (60 fraud + 60 legit), eval subset=250 (all 95 test
+      fraud + 155 random legit, ~38% fraud rate) to keep runtime to ~10 min/condition
+- [x] Built src/novelty/qsvm_kernel.py: ZZFeatureMap FidelityQuantumKernel + SVC(precomputed),
+      plus VQC retrained/evaluated on the IDENTICAL subset for a fair head-to-head
+- [x] Documented clearly: this eval subset is class-enriched vs. the real ~0.17% fraud rate,
+      so these numbers are not directly comparable to the full-test-set headline VQC numbers
+      -- they exist only to compare QSVM vs. VQC on equal footing
+- **Key finding**: QSVM clearly beats VQC on every balancing condition on the matched subset
+  (F1: None 0.8306 vs 0.6748, SMOTE 0.8432 vs 0.6395, ADASYN 0.5567 vs 0.5395; ROC-AUC follows
+  the same pattern). This gives the paper a genuine second quantum method and a real
+  "which quantum approach performs better" comparison, not just VQC-vs-classical.
+- Also notable: both quantum methods score far better here than the near-zero F1 VQC got on
+  the full imbalanced test set (Phase 1's headline numbers) -- reinforcing that extreme class
+  imbalance, not "quantumness" per se, was the dominant driver of the original poor scores.
 
 ## Phase 3 — Multi-seed Robustness
 - [ ] Feasibility: N seeds x 3 balancing conditions x ~75s/fit = estimate total runtime,

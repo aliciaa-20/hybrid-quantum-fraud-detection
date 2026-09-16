@@ -99,8 +99,10 @@ para(
     "methodologically defensible comparison: (1) decision-threshold optimization, "
     "(2) a quantum-kernel classifier (QSVM) evaluated head-to-head against VQC, "
     "(3) multi-seed robustness analysis, (4) a feature-map/ansatz ablation, "
-    "(5) a qubit-count scaling study, and (6) a NISQ-representative noise-model "
-    "simulation. Results show that threshold tuning, not balancing strategy alone, "
+    "(5) a qubit-count scaling study, (6) a NISQ-representative noise-model "
+    "simulation, (7) statistical significance testing (McNemar's test and "
+    "paired t-tests), and (8) a cost-benefit analysis grounded in the "
+    "dataset's real average fraud transaction value. Results show that threshold tuning, not balancing strategy alone, "
     "recovers most of classical models' precision-recall trade-off (Random Forest "
     "with ADASYN: F1 improves from 0.064 to 0.764), while VQC's probability outputs "
     "show limited separative power on the full imbalanced test set even under "
@@ -246,6 +248,53 @@ para(
     "(QSVM), robustness analysis, architecture ablation, qubit scaling, and noise "
     "simulation, evaluated consistently on the same ULB fraud dataset and feature "
     "set throughout."
+)
+
+h2("2.5 Comparative Summary of Reported Results")
+para(
+    "The table below situates this study's results alongside the reviewed "
+    "literature's best-reported figures. Direct comparison must be read with caution: papers "
+    "differ substantially in evaluation protocol -- several report results on "
+    "artificially balanced or moderately imbalanced test sets rather than the "
+    "extreme real-world 0.17% fraud rate used for this paper's full-test-set VQC "
+    "headline numbers, which likely explains part of the gap between this study's "
+    "full-test-set results and the more optimistic figures reported elsewhere. "
+    "This study reports results under both evaluation protocols explicitly "
+    "(full imbalanced test set and a matched, class-enriched subset), which most "
+    "reviewed papers do not distinguish."
+)
+make_table(
+    ["Study", "Quantum Method", "Best Reported Metric", "Evaluation Protocol"],
+    [
+        ["Reddy et al. [3]", "VQC + Random Forest hybrid", "96.9% accuracy",
+         "Not specified (Kaggle dataset)"],
+        ["Ubale et al. [4]", "Hybrid Quantum LSTM", "95.33% acc / 95.39% F1",
+         "Not specified"],
+        ["Li et al. [5]", "VQC + RNN + attention", "F1 = 0.90",
+         "SMOTE-balanced"],
+        ["Loke et al. [6]", "CVQBoost (annealing ensemble)", "AUC-PR = 0.81",
+         "Real quantum hardware (Dirac-3)"],
+        ["Huot et al. [8]", "Quantum Autoencoder", "G-mean 0.946, AUC 0.947",
+         "Noiseless + IBM FakeCairo noise model"],
+        ["Orbe et al. [9]", "Quantum-inspired MLP (not gate-based)", "99.35% acc, AUC 0.97",
+         "SMOTEENN-balanced"],
+        ["Lopez Garcia et al. [2] (preprint)", "Quantum-inspired circuits", "F1 = 0.66",
+         "Qubit-truncated features"],
+        ["This study -- VQC", "Variational Quantum Classifier",
+         "F1 = 0.0395 (best-F1 threshold)", "Full imbalanced test set (0.17% fraud)"],
+        ["This study -- VQC (matched)", "Variational Quantum Classifier",
+         "F1 = 0.6748", "Class-enriched subset (~38% fraud)"],
+        ["This study -- QSVM (matched)", "Quantum Kernel (fidelity kernel + SVC)",
+         "F1 = 0.8432", "Class-enriched subset (~38% fraud)"],
+    ],
+)
+para(
+    "This study's matched-subset QSVM result (F1 = 0.8432) is competitive with "
+    "several reviewed papers' headline figures, while its full-imbalanced-test-set "
+    "VQC result is markedly weaker than any reviewed paper's reported number -- "
+    "supporting the interpretation that evaluation protocol, not just quantum "
+    "method choice, substantially affects reported QML fraud-detection performance "
+    "across the literature."
 )
 
 doc.add_page_break()
@@ -612,7 +661,106 @@ para(
     "hardware."
 )
 
-h2("5.8 Summary of Findings")
+h2("5.8 Statistical Significance Testing")
+para(
+    "To confirm that the differences reported above are not attributable to "
+    "chance, McNemar's test (exact binomial form) was applied wherever two "
+    "models' predictions could be paired on identical test samples, and paired "
+    "t-tests / Wilcoxon signed-rank tests were applied to the multi-seed data "
+    "from Section 5.4."
+)
+make_table(
+    ["Comparison", "Balancing", "b", "c", "McNemar p-value", "Significant"],
+    [
+        ["Random Forest vs. VQC (full test set, best-F1 thresholds)", "None", "5136", "4", "~0", "Yes"],
+        ["Random Forest vs. VQC (full test set, best-F1 thresholds)", "SMOTE", "118", "8", "3.16e-26", "Yes"],
+        ["Random Forest vs. VQC (full test set, best-F1 thresholds)", "ADASYN", "522", "7", "2.55e-144", "Yes"],
+        ["QSVM vs. VQC (matched subset)", "None", "43", "10", "6.0e-06", "Yes"],
+        ["QSVM vs. VQC (matched subset)", "SMOTE", "40", "9", "9.0e-06", "Yes"],
+        ["QSVM vs. VQC (matched subset)", "ADASYN", "83", "38", "5.3e-05", "Yes"],
+    ],
+)
+para(
+    "Every comparison is significant at alpha = 0.05: the best classical model "
+    "significantly outperforms VQC on the full test set in all three balancing "
+    "conditions, and QSVM significantly outperforms VQC on the matched subset in "
+    "all three balancing conditions as well."
+)
+make_table(
+    ["Metric", "Comparison (VQC, N=5 seeds)", "Paired t-test p", "Wilcoxon p", "Significant (t-test)"],
+    [
+        ["F1", "None vs. SMOTE", "0.0905", "0.1250", "No"],
+        ["F1", "None vs. ADASYN", "0.0413", "0.0625", "Yes"],
+        ["F1", "SMOTE vs. ADASYN", "0.0186", "0.0625", "Yes"],
+        ["ROC-AUC", "None vs. SMOTE", "0.1932", "0.3125", "No"],
+        ["ROC-AUC", "None vs. ADASYN", "0.0040", "0.0625", "Yes"],
+        ["ROC-AUC", "SMOTE vs. ADASYN", "0.0124", "0.0625", "Yes"],
+    ],
+)
+para(
+    "The paired t-test confirms that ADASYN is significantly worse than both "
+    "None and SMOTE for VQC on both F1 and ROC-AUC, while the improvement from "
+    "None to SMOTE is directionally positive but not statistically significant at "
+    "this sample size. The Wilcoxon signed-rank test cannot reach p < 0.05 with "
+    "only five paired seeds (its minimum achievable two-sided p-value at N=5 is "
+    "0.0625); this is reported as a limitation of the seed count rather than "
+    "evidence against the t-test's conclusion, since both tests agree in "
+    "direction throughout. A separate, incidental finding from the QSVM-vs-VQC "
+    "rerun is worth noting here: VQC's aggregate metrics shifted noticeably "
+    "between two runs under otherwise identical settings (e.g. F1 = 0.6748 "
+    "versus 0.6235 on the matched None-balancing subset), because COBYLA's "
+    "initial point is not fixed by this study's random seed in the "
+    "qiskit-machine-learning version used -- independent confirmation that VQC "
+    "results in this setup are not perfectly reproducible run-to-run, reinforcing "
+    "the case for the multi-seed protocol used throughout this paper."
+)
+
+h2("5.9 Cost-Benefit Analysis")
+para(
+    "To translate classification metrics into an operationally meaningful "
+    "measure, each confusion matrix was converted into an illustrative dollar "
+    "impact: fraud value caught is computed as true positives multiplied by the "
+    "dataset's actual mean fraudulent transaction amount ($122.21, computed "
+    "directly from the data), and investigation cost is computed as false "
+    "positives multiplied by an illustrative $25 per manually reviewed flagged "
+    "transaction (a stated assumption, not an empirical figure, since the "
+    "dataset does not include review-cost data). This analysis is restricted to "
+    "the full-test-set models; the Section 5.3 QSVM matched-subset results are "
+    "excluded because that subset's approximately 38% enriched fraud rate does "
+    "not reflect real transaction volume and would produce a misleading dollar "
+    "total."
+)
+make_table(
+    ["Model", "Balancing", "Threshold", "Net Benefit ($)"],
+    [
+        ["Random Forest", "None", "Best-F1", "8,668.54"],
+        ["Random Forest", "None", "Default (0.5)", "8,085.28"],
+        ["SVM", "None", "Default (0.5)", "8,396.33"],
+        ["Logistic Regression", "None", "Best-F1", "8,032.49"],
+        ["Random Forest", "ADASYN", "Default (0.5)", "-48,123.20"],
+        ["Logistic Regression", "ADASYN", "Default (0.5)", "-178,131.57"],
+        ["VQC", "SMOTE", "Best-F1", "-983.37"],
+        ["VQC", "None", "Best-F1", "-122,547.76"],
+        ["VQC", "ADASYN", "Default (0.5)", "-271,995.30"],
+    ],
+)
+para(
+    "Random Forest without balancing, evaluated at its best-F1 threshold, "
+    "produces the highest net benefit of any configuration tested "
+    "($8,668.54 on this test set). Balanced classical models evaluated at the "
+    "default threshold are strongly net-negative due to overwhelming "
+    "investigation costs from false positives (e.g. Logistic Regression with "
+    "ADASYN at default threshold: -$178,131.57), reinforcing Section 5.2's "
+    "finding that threshold selection matters more than balancing strategy "
+    "alone. Most strikingly, every VQC configuration tested is net-negative, "
+    "including at its own best-F1 threshold -- the false-positive investigation "
+    "cost overwhelms the fraud value caught in every case. This is a "
+    "materially stronger statement than the F1/ROC-AUC comparisons alone: under "
+    "this illustrative but transparent cost model, deploying any of the VQC "
+    "configurations evaluated here would cost more than it saves."
+)
+
+h2("5.10 Summary of Findings")
 bullet("Decision-threshold optimization, not balancing method choice alone, "
        "recovers most classical models' precision-recall trade-off; VQC does "
        "not benefit comparably, indicating a deeper limitation in its learned "
@@ -632,6 +780,15 @@ bullet("More qubits does not help without a correspondingly larger training "
 bullet("A realistic noise model modestly degrades VQC performance and "
        "substantially increases computational cost, reinforcing that current "
        "NISQ-era hardware would not improve on these already-limited results.")
+bullet("All major comparisons (classical vs. VQC, QSVM vs. VQC) are confirmed "
+       "statistically significant by McNemar's test (p < 0.001 throughout); "
+       "ADASYN's underperformance relative to SMOTE and no-balancing is "
+       "confirmed significant by paired t-test across seeds.")
+bullet("Under an illustrative cost model using the dataset's real average "
+       "fraud amount, every VQC configuration is net-negative even at its "
+       "best decision threshold, while the best classical configuration "
+       "(Random Forest, no balancing, tuned threshold) is clearly net-positive "
+       "-- a stronger, operationally-grounded statement than F1/ROC-AUC alone.")
 para(
     "Taken together, these results support a measured conclusion: the quantum "
     "methods evaluated here do not outperform well-tuned classical baselines on "

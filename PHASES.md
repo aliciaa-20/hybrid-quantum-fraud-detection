@@ -163,6 +163,25 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
 ## Phase 8 COMPLETE (pending paper doc update). Proceeding to Phase 9-11 (user-requested):
 ## related-work comparison table, cost-benefit framing, real IBM Quantum hardware run.
 
+## Phase 10 — Real IBM Quantum Hardware Run [ABANDONED, documented as a limitation]
+- [x] Installed qiskit-ibm-runtime 0.49.0
+- [x] Confirmed via a live connection attempt that this qiskit-ibm-runtime version no longer
+      supports the legacy no-CRN "ibm_quantum" channel -- only "ibm_cloud" /
+      "ibm_quantum_platform", both of which require an explicit instance CRN even for the
+      free/open plan
+- [x] User's existing IBM account is a university-managed org account ("Uni" / watsonx) with
+      no permission to create new instances (admin-only) -- confirmed via screenshot
+      ("You do not have permission to create new instances in this account")
+- [x] Attempted a personal (non-university) IBM Cloud account instead -- its free/Lite plan
+      instance-creation flow requires payment card details for identity verification
+- [x] User made an informed decision NOT to enter payment details for a free-tier account --
+      a reasonable privacy/financial choice, not a technical failure
+- **Decision: real hardware validation is explicitly dropped and documented as a stated
+  limitation / future work item in the paper**, with Phase 6's noise-model simulation serving
+  as the NISQ-realism evidence instead. Local credential files (~/.ibm_quantum_token,
+  ~/.ibm_quantum_instance) were created during troubleshooting and have been deleted -- no
+  IBM credentials are retained anywhere in this project.
+
 ## ALL 7 PHASES COMPLETE. Phase 8 in progress.
 
 ## Housekeeping

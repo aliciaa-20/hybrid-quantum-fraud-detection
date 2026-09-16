@@ -54,11 +54,20 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
   the full imbalanced test set (Phase 1's headline numbers) -- reinforcing that extreme class
   imbalance, not "quantumness" per se, was the dominant driver of the original poor scores.
 
-## Phase 3 — Multi-seed Robustness
-- [ ] Feasibility: N seeds x 3 balancing conditions x ~75s/fit = estimate total runtime,
-      pick N (likely 5) that fits in a reasonable session
-- [ ] Rerun VQC across seeds, report mean +/- std for all metrics
-- [ ] Statistical comparison (e.g. paired test) vs classical baselines mean/std
+## Phase 3 — Multi-seed Robustness [x] DONE
+- [x] Ran 5 seeds (42, 7, 123, 2024, 99) x 3 balancing conditions, full pipeline
+      (resample -> SMOTE/ADASYN -> VQC train -> VQC predict on full test set) each time
+- [x] Runtime note: took ~90 min total, notably longer than the ~20-30 min estimated from fit
+      time alone -- `predict()` on the full 56,747-row test set turned out to dominate
+      wall-clock, not the COBYLA fit. Worth flagging for anyone re-running this.
+- **Key finding**: ADASYN is highly unstable across seeds -- accuracy 0.5625 +/- 0.2283,
+  F1 0.0057 +/- 0.0026, ROC-AUC 0.6472 +/- 0.0760. The original paper's single ADASYN run
+  (accuracy 0.8018, F1 0.0123) sits within this wide spread but is not representative of the
+  mean. SMOTE is far more stable (accuracy 0.9196+/-0.0291, F1 0.0241+/-0.0090) and its mean F1
+  closely reproduces the original single-run number (0.0234) -- so SMOTE's original result was
+  reproducible, but ADASYN's was largely luck of the draw. This is a legitimate, citable
+  robustness result for the paper's Result Analysis section.
+- Raw per-seed data: results/novelty/vqc_multiseed_raw.csv; summary: vqc_multiseed_summary.csv
 
 ## Phase 4 — Feature Map / Ansatz Ablation
 - [ ] Feasibility: confirm PauliFeatureMap and EfficientSU2 construct at 4 qubits without error

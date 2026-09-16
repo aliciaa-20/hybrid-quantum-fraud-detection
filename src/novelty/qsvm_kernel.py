@@ -73,6 +73,7 @@ y_eval = eval_df["Class"].values
 print("Evaluation subset:", eval_df.shape, "fraud:", int(y_eval.sum()))
 
 rows = []
+prediction_rows = []
 
 for balancing, path in DATASETS.items():
     print("\n" + "=" * 70)
@@ -158,8 +159,20 @@ for balancing, path in DATASETS.items():
     print(f"QSVM  F1={rows[-2]['F1 Score']:.4f}  ROC-AUC={rows[-2]['ROC AUC']:.4f}")
     print(f"VQC   F1={rows[-1]['F1 Score']:.4f}  ROC-AUC={rows[-1]['ROC AUC']:.4f}")
 
+    for actual, qp, vp in zip(y_eval, y_pred, y_pred_vqc):
+        prediction_rows.append({
+            "Balancing": balancing,
+            "Actual": int(actual),
+            "QSVM Predicted": int(qp),
+            "VQC Predicted": int(vp),
+        })
+
 result_df = pd.DataFrame(rows)
 result_df.to_csv("results/novelty/qsvm_vs_vqc.csv", index=False)
+
+predictions_df = pd.DataFrame(prediction_rows)
+predictions_df.to_csv("results/novelty/qsvm_vs_vqc_predictions.csv", index=False)
+print("Saved results/novelty/qsvm_vs_vqc_predictions.csv")
 
 print("\n" + "=" * 70)
 print(result_df.round(4).to_string(index=False))

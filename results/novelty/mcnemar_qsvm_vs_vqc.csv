@@ -1,0 +1,4 @@
+Balancing,QSVM-right/VQC-wrong (b),QSVM-wrong/VQC-right (c),McNemar p-value,Significant (alpha=0.05)
+ADASYN,83,38,5.267330937066036e-05,Yes
+None,43,10,5.550520889130439e-06,Yes
+SMOTE,40,9,9.263546409954415e-06,Yes

@@ -144,12 +144,24 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
       limitation of the small seed count, paired t-test is directionally consistent throughout.
 - [x] Bug found+fixed: same "None"-read-as-NaN pandas gotcha as Phase 1, this time in
       vqc_multiseed_raw.csv -- fixed with keep_default_na=False.
-- [ ] McNemar's test: QSVM vs. VQC on the Phase 2 matched subset -- requires modifying
-      src/novelty/qsvm_kernel.py to also save per-sample predictions (not saved originally),
-      then rerunning (~15-20 min, deterministic with fixed seeds so aggregate metrics should
-      exactly reproduce the original run as a correctness check)
+- [x] McNemar's test: QSVM vs. VQC on the Phase 2 matched subset. Modified
+      src/novelty/qsvm_kernel.py to also save per-sample predictions, reran (~13 min).
+      **Correctness check result**: QSVM's numbers reproduced EXACTLY (deterministic given
+      the precomputed kernel), but VQC's numbers shifted noticeably (e.g. None: F1
+      0.6748->0.6235) despite identical settings -- COBYLA's initial point is not seeded by
+      our RANDOM_STATE in this qiskit-machine-learning version, so VQC is not perfectly
+      reproducible run-to-run even with everything else fixed. This is independent evidence
+      reinforcing Phase 3's multi-seed instability finding and is worth stating explicitly in
+      the paper's limitations.
+      **Significance result**: QSVM significantly outperforms VQC in ALL THREE conditions
+      (None: b=43,c=10,p=6e-6; SMOTE: b=40,c=9,p=9e-6; ADASYN: b=83,c=38,p=5.3e-5) --
+      confirms Phase 2's descriptive finding with a real hypothesis test.
 - [ ] Update paper's Result Analysis section with a new significance-testing subsection
-- Results so far: results/novelty/mcnemar_classical_vs_vqc.csv, paired_tests_multiseed.csv
+- Results: results/novelty/mcnemar_classical_vs_vqc.csv, paired_tests_multiseed.csv,
+  mcnemar_qsvm_vs_vqc.csv, qsvm_vs_vqc_predictions.csv
+
+## Phase 8 COMPLETE (pending paper doc update). Proceeding to Phase 9-11 (user-requested):
+## related-work comparison table, cost-benefit framing, real IBM Quantum hardware run.
 
 ## ALL 7 PHASES COMPLETE. Phase 8 in progress.
 

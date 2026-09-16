@@ -113,13 +113,21 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
 
 ## ALL EXPERIMENTAL PHASES (0-6) COMPLETE. Proceeding to Phase 7: paper writing.
 
-## Phase 7 — Paper Writing
-- [ ] Title
-- [ ] Literature Review (from qc_miniproj/papers)
-- [ ] Methodology (update with Phases 1-6 additions)
-- [ ] Proof of Concept / Implementation
-- [ ] Result Analysis and Comparative Analysis (new tables/figures from Phases 1-6)
-- [ ] References
+## Phase 7 — Paper Writing [x] DONE
+- [x] Reviewed all 9 reference papers in qc_miniproj/papers/ via a research fork; discarded
+      one (Rosenberger, IJEETR) as an unrelated/mismatched paper, flagged one
+      (Lopez Garcia et al., preprints.org) as non-peer-reviewed but still citable as a
+      benchmark data point
+- [x] Confirmed target format from the IOP Publishing template found alongside the papers:
+      numbered sections, numbered bracketed references [1]...[n], Abstract+Keywords block
+- [x] Wrote Hybrid_Quantum_Fraud_Detection_Paper.docx (via build_paper.py, python-docx)
+      covering: Title/Abstract, Literature Review (4 subsections), Methodology (11
+      subsections covering the original pipeline + all 6 extensions), Proof of
+      Concept/Implementation, Result Analysis and Comparative Analysis (8 subsections with
+      7 data tables, all real numbers from Phases 1-6), References (13 sources)
+- Output: Hybrid_Quantum_Fraud_Detection_Paper.docx (repo root)
+
+## ALL 7 PHASES COMPLETE.
 
 ## Housekeeping
 - Commit after each phase completes (git commit only, no push — user is not a GitHub

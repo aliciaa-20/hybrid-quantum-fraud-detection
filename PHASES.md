@@ -81,10 +81,21 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
   was already the strongest available option among these alternatives.
 - Results: results/novelty/ablation_featuremap_ansatz.csv
 
-## Phase 5 — Qubit-Count Scaling Study
-- [ ] Feasibility: check MI feature ranking supports selecting up to 8 features cleanly
-- [ ] Re-run feature selection for k in {2,4,6,8}, retrain VQC per k on matched subsample size
-- [ ] Plot accuracy/F1 vs qubit count and training time vs qubit count
+## Phase 5 — Qubit-Count Scaling Study [x] DONE
+- [x] Confirmed MI ranking supports k up to 8 cleanly (monotonic scores, no ties); k=4 exactly
+      reproduces the original paper's own feature selection (V10, V12, V14, V17)
+- [x] Ran k in {2,4,6,8} on a matched "no balancing" subsample, full test set evaluation
+- Note: this run was killed once by macOS for system-wide low memory (Chrome/Creative Cloud
+      contention, not a script issue -- confirmed via vm_stat). Added resume-from-CSV support
+      to src/novelty/qubit_scaling.py plus explicit gc.collect() per iteration; user freed RAM
+      and the retry completed cleanly.
+- **Key finding**: F1/ROC-AUC is BEST at k=2 (F1=0.0822, ROC-AUC=0.9227) and degrades sharply
+  with more qubits (k=4: F1=0.0135, ROC-AUC=0.7638; k=6: F1=0.0024, ROC-AUC=0.3754 -- worse than
+  random; k=8: F1=0.0042, ROC-AUC=0.5512), while combined train+predict time explodes
+  (37s -> 107s -> 252s -> 841s). Likely cause: the training budget (1000 samples, 30 COBYLA
+  iterations) is fixed regardless of k, so larger circuits' bigger parameter spaces can't be
+  optimized well in the same budget -- a genuine, citable NISQ-era scalability limitation.
+- Results: results/novelty/qubit_scaling.csv
 
 ## Phase 6 — Noise-Model Simulation
 - [ ] Feasibility: confirm AerSimulator + NoiseModel integrates with VQC's sampler in this

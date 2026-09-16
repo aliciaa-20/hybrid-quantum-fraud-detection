@@ -13,6 +13,8 @@ reproduces the original paper's own feature selection exactly (V10, V12,
 V14, V17), which is a useful sanity check on this script's correctness.
 """
 
+import gc
+import os
 import time
 import numpy as np
 import pandas as pd
@@ -50,9 +52,21 @@ X_test_std = pd.DataFrame(
     scaler_std.transform(X_test_full), columns=X_test_full.columns, index=X_test_full.index
 )
 
+OUT_PATH = "results/novelty/qubit_scaling.csv"
+
 rows = []
+done_k = set()
+if os.path.exists(OUT_PATH):
+    prior = pd.read_csv(OUT_PATH)
+    rows = prior.to_dict("records")
+    done_k = set(prior["Qubits"].tolist())
+    print(f"Resuming: already have results for k={sorted(done_k)}")
 
 for k in K_VALUES:
+    if k in done_k:
+        print(f"Skipping k={k}, already completed")
+        continue
+
     print("\n" + "=" * 70)
     print(f"k = {k} qubits")
     print("=" * 70)
@@ -114,10 +128,13 @@ for k in K_VALUES:
     print(f"F1={metrics['F1 Score']:.4f}  ROC-AUC={metrics['ROC AUC']:.4f}  "
           f"train={train_time:.1f}s  predict={predict_time:.1f}s")
 
-    pd.DataFrame(rows).to_csv("results/novelty/qubit_scaling.csv", index=False)
+    pd.DataFrame(rows).to_csv(OUT_PATH, index=False)
+
+    del vqc, X_train, X_test, X_train_raw, quantum_train, train_sel
+    gc.collect()
 
 result_df = pd.DataFrame(rows)
-result_df.to_csv("results/novelty/qubit_scaling.csv", index=False)
+result_df.to_csv(OUT_PATH, index=False)
 
 print("\n" + "=" * 70)
 print(result_df.round(4).to_string(index=False))

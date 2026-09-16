@@ -97,11 +97,21 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
   optimized well in the same budget -- a genuine, citable NISQ-era scalability limitation.
 - Results: results/novelty/qubit_scaling.csv
 
-## Phase 6 — Noise-Model Simulation
-- [ ] Feasibility: confirm AerSimulator + NoiseModel integrates with VQC's sampler in this
-      qiskit-machine-learning version (0.9.1) — check API compatibility before full run
-- [ ] Run best config (from Phase 1-4) under a realistic depolarizing/readout noise model
-- [ ] Compare noiseless vs noisy metrics — feeds NISQ-feasibility discussion
+## Phase 6 — Noise-Model Simulation [x] DONE
+- [x] Confirmed in Phase 0 that AerSampler + NoiseModel wires into VQC cleanly on
+      qiskit-machine-learning 0.9.1
+- [x] Small-scale timing check (n=60, 10 iters) showed noisy sim isn't much slower than
+      noiseless at 4 qubits -- confirmed feasible to run at full scale without subsampling
+- [x] Ran ZZFeatureMap+RealAmplitudes+SMOTE (best config) noiseless vs. under an illustrative
+      NISQ-like noise model (0.1% single-qubit / 1% two-qubit depolarizing + 1% readout error)
+- **Key finding**: noise causes a real but modest performance drop (F1 0.0195 -> 0.0157,
+  ROC-AUC 0.8169 -> 0.7943) plus a substantial runtime cost from shot-based noisy sampling vs.
+  exact statevector calculation (train 100.3s -> 188.9s, predict 98.5s -> 335.2s). Useful,
+  honest evidence for a "real NISQ hardware would likely perform somewhat worse and much
+  slower" discussion point.
+- Results: results/novelty/noise_simulation.csv
+
+## ALL EXPERIMENTAL PHASES (0-6) COMPLETE. Proceeding to Phase 7: paper writing.
 
 ## Phase 7 — Paper Writing
 - [ ] Title

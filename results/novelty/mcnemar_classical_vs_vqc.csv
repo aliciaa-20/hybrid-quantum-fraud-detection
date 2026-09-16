@@ -1,0 +1,4 @@
+Balancing,Classical Model,Classical-right/VQC-wrong (b),Classical-wrong/VQC-right (c),McNemar p-value,Significant (alpha=0.05)
+None,Random Forest,5136,4,0.0,Yes
+SMOTE,Random Forest,118,8,3.1633163266191123e-26,Yes
+ADASYN,Random Forest,522,7,2.5494733179184614e-144,Yes

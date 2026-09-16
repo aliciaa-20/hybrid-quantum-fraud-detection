@@ -127,7 +127,31 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
       7 data tables, all real numbers from Phases 1-6), References (13 sources)
 - Output: Hybrid_Quantum_Fraud_Detection_Paper.docx (repo root)
 
-## ALL 7 PHASES COMPLETE.
+## Phase 8 — Statistical Significance Testing
+- [x] McNemar's test: best classical model (Random Forest, best across balancing conditions)
+      vs. VQC (both at best-F1 thresholds from Phase 1), per balancing condition, full test
+      set. Used EXISTING per-sample data, no rerun needed.
+      **Result**: classical significantly outperforms VQC in ALL THREE conditions
+      (None: b=5136,c=4,p~0; SMOTE: b=118,c=8,p=3.16e-26; ADASYN: b=522,c=7,p=2.55e-144) --
+      quantifies with a real hypothesis test what Table 1-2 showed descriptively.
+- [x] Paired significance tests (paired t-test + Wilcoxon signed-rank, N=5 seeds) across VQC
+      balancing conditions on F1/ROC-AUC. Used EXISTING data (vqc_multiseed_raw.csv), no rerun.
+      **Result**: None vs SMOTE is NOT significant (p=0.09 F1, p=0.19 ROC-AUC) -- consistent
+      with Phase 3's finding that SMOTE's improvement over no-balancing is real but modest.
+      None vs ADASYN and SMOTE vs ADASYN ARE significant by paired t-test (p<0.05 for both
+      metrics) -- ADASYN is not just noisier (Phase 3), it's significantly WORSE on average.
+      Wilcoxon can't reach p<0.05 with only N=5 pairs (min possible p=0.0625) -- noted as a
+      limitation of the small seed count, paired t-test is directionally consistent throughout.
+- [x] Bug found+fixed: same "None"-read-as-NaN pandas gotcha as Phase 1, this time in
+      vqc_multiseed_raw.csv -- fixed with keep_default_na=False.
+- [ ] McNemar's test: QSVM vs. VQC on the Phase 2 matched subset -- requires modifying
+      src/novelty/qsvm_kernel.py to also save per-sample predictions (not saved originally),
+      then rerunning (~15-20 min, deterministic with fixed seeds so aggregate metrics should
+      exactly reproduce the original run as a correctness check)
+- [ ] Update paper's Result Analysis section with a new significance-testing subsection
+- Results so far: results/novelty/mcnemar_classical_vs_vqc.csv, paired_tests_multiseed.csv
+
+## ALL 7 PHASES COMPLETE. Phase 8 in progress.
 
 ## Housekeeping
 - Commit after each phase completes (git commit only, no push — user is not a GitHub

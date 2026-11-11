@@ -21,6 +21,9 @@ def load_findings() -> dict:
             TUNED_CAVEAT),
         "qsvm_vs_vqc": _table("novelty/qsvm_vs_vqc.csv", "matched 250-row class-enriched subset",
                               "This subset is 38% fraud (real-world rate is about 0.17%), so these numbers "
-                              "are not comparable to full-test-set numbers."),
+                              "are not comparable to full-test-set numbers. VQC training is not seeded, so its "
+                              "numbers move between runs: the paper's first run scored F1 0.67 / 0.64 / 0.54 "
+                              "(none / SMOTE / ADASYN); the rerun shown here scored 0.62 / 0.62 / 0.51. "
+                              "QSVM is deterministic and reproduces exactly."),
         "thresholds": _table("novelty/threshold_optimization.csv", "full test set (56,746 rows)", TUNED_CAVEAT),
     }

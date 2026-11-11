@@ -47,8 +47,19 @@ export default function Findings() {
   const qv = data?.qsvm_vs_vqc.rows ?? [];
 
   const row = cq.find((r) => r["Model"] === model && r["Balancing"] === balancing);
-  const counts = cb.find((r) => r["Model"] === model && r["Balancing"] === balancing && String(r["Threshold"]).startsWith("Default"));
-  const noneCounts = cb.find((r) => r["Model"] === model && r["Balancing"] === "None" && String(r["Threshold"]).startsWith("Default"));
+  // Plain-number counts are derived from the same precision/recall the bars show, so the sentence can never
+  // disagree with them (the cost table's probability-thresholded counts differ by one for the SVM).
+  const anyCount = cb[0];
+  const positives = anyCount ? num(anyCount["TP"]) + num(anyCount["FN"]) : 0;
+  const negatives = anyCount ? num(anyCount["FP"]) + num(anyCount["TN"]) : 0;
+  const counts = (bal: string) => {
+    const r = cq.find((x) => x["Model"] === model && x["Balancing"] === bal);
+    if (!r || !positives || num(r["Precision"]) <= 0) return null;
+    const tp = Math.round(num(r["Recall"]) * positives);
+    return { tp, fn: positives - tp, fp: Math.round(tp * (1 / num(r["Precision"]) - 1)) };
+  };
+  const c = counts(balancing);
+  const cNone = counts("None");
 
   const headline = useMemo(() => {
     const best = (name: string) => Math.max(...cq.filter((r) => r["Model"] === name).map((r) => num(r["F1 Score"])), 0);
@@ -121,14 +132,14 @@ export default function Findings() {
                     { label: "ROC AUC", hint: "How well it ranks fraud above legitimate, whatever the cut-off.", value: num(row["ROC AUC"]) },
                   ]} />
                 )}
-                {counts && (
+                {c && (
                   <p className="story">
                     {MODELS.find((m) => m.value === model)?.label}, {BALANCING_TEXT[balancing]}: out of{" "}
-                    <strong>{num(counts["TP"]) + num(counts["FN"])}</strong> real frauds it caught <strong className="good">{num(counts["TP"])}</strong> and
-                    missed <strong className="bad">{num(counts["FN"])}</strong>. It also raised <strong>{num(counts["FP"]).toLocaleString("en-US")}</strong> false
-                    alarms on {(num(counts["FP"]) + num(counts["TN"])).toLocaleString("en-US")} legitimate transactions.
-                    {balancing !== "None" && noneCounts && num(counts["FP"]) > num(noneCounts["FP"]) * 3 && (
-                      <> Without balancing it raised only <strong>{num(noneCounts["FP"]).toLocaleString("en-US")}</strong>: more fraud caught, but at the price of far more false alarms for analysts to review.</>
+                    <strong>{positives}</strong> real frauds it caught <strong className="good">{c.tp}</strong> and
+                    missed <strong className="bad">{c.fn}</strong>. It also raised <strong>{c.fp.toLocaleString("en-US")}</strong> false
+                    alarms on {negatives.toLocaleString("en-US")} legitimate transactions.
+                    {balancing !== "None" && cNone && c.fp > cNone.fp * 3 && (
+                      <> Without balancing it raised only <strong>{cNone.fp.toLocaleString("en-US")}</strong>: more fraud caught, but at the price of far more false alarms for analysts to review.</>
                     )}
                   </p>
                 )}

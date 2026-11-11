@@ -84,8 +84,10 @@ def create_confusion_matrix(
 # RANDOM FOREST + NONE
 # =========================================================
 
+# Must match src/classical_models.py (max_depth=10) so this figure agrees with the results table.
 random_forest = RandomForestClassifier(
     n_estimators=100,
+    max_depth=10,
     random_state=42,
     n_jobs=-1
 )

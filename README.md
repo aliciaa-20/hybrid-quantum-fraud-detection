@@ -219,8 +219,8 @@ The project does not claim that the quantum model outperforms classical machine 
 ```text
 True Negatives  = 56,642
 False Positives = 9
-False Negatives = 28
-True Positives  = 67
+False Negatives = 27
+True Positives  = 68
 ```
 
 ### SVM + None
@@ -264,40 +264,29 @@ True Positives  = 70
 ```text
 hybrid-quantum-fraud-detection/
 |
-├── data/
-|   └── .gitkeep
+├── app/                         web app (see "Web app" below)
+|   ├── backend/                 FastAPI API
+|   |   ├── fraudscope/          API code: config, scoring, uploads, findings, routes
+|   |   ├── export/              retrain-and-verify scripts (the reproduction gate)
+|   |   └── artifacts/           exported models, sample table, results CSVs, provenance
+|   └── frontend/                React + Vite + TypeScript UI
 |
-├── results/
-|   ├── classical_results.csv
-|   ├── quantum_results.csv
-|   ├── quantum_predictions.csv
-|   ├── final_results.csv
-|   ├── model_comparison.png
-|   ├── precision_comparison.png
-|   ├── recall_comparison.png
-|   ├── roc_auc_comparison.png
-|   ├── training_time_comparison.png
-|   ├── random_forest_plus_none_confusion_matrix.png
-|   ├── svm_plus_none_confusion_matrix.png
-|   ├── vqc_none_confusion_matrix.png
-|   ├── vqc_smote_confusion_matrix.png
-|   └── vqc_adasyn_confusion_matrix.png
+├── data/                        processed CSVs (gitignored; creditcard.csv is not included)
+├── docs/superpowers/            web app design spec and implementation plan
 |
-├── src/
-|   ├── balancing.py
-|   ├── classical_models.py
-|   ├── confusion_matrices.py
-|   ├── final_results.py
-|   ├── preprocessing.py
-|   ├── quantum_data.py
-|   ├── quantum_final.py
-|   └── quantum_model.py
+├── results/                     baseline results, figures and predictions
+|   └── novelty/                 extension experiments: QSVM, thresholds, significance, cost-benefit
+├── src/                         research code
+|   └── novelty/                 extension experiments
 |
-├── eda.py
-├── test_dataset.py
-├── requirements.txt
-├── .gitignore
-└── README.md
+├── Hybrid_Quantum_Fraud_Detection_Paper.docx, QC_Paper.pdf, QC_Presentation.pptx   paper and slides
+├── build_paper.py               generates the paper .docx
+├── demo.py                      prints a results walkthrough
+├── eda.py, test_dataset.py      exploration and dataset check
+├── PHASES.md                    research phases and findings log
+├── STAGES.md                    web app build stages
+├── render.yaml                  backend deployment (Render)
+└── requirements.txt
 ```
 
 ## Implementation Workflow
@@ -448,22 +437,36 @@ Artificial Intelligence and Machine Learning
 
 This project is intended for educational and academic use.
 
-## Web app (in progress)
+## Web app
 
-A public demo app built on this research is being added under `app/` (FastAPI backend in `app/backend`, React frontend in `app/frontend`). Plan: `docs/superpowers/plans/2026-11-11-fraudscope-app.md`; progress: `STAGES.md`.
+**Nice Try** turns the research into a public demo: browse real test-set transactions scored by Random Forest, QSVM and VQC side by side, upload a small CSV, and read the findings as an interactive story. It does not claim quantum advantage; in this project's own results the classical Random Forest wins.
 
-Backend setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt fastapi uvicorn python-multipart`.
+- **Backend** (`app/backend`, FastAPI): loads exported models and a 250-row sample table at startup. Random Forest scores every row; QSVM and VQC run on a simulator and are capped to small uploads.
+- **Frontend** (`app/frontend`, React + Vite + TypeScript, `motion` for animation).
+- **Where the numbers come from:** the Findings page reads `results/` CSVs (copied to `app/backend/artifacts/results/`); nothing is typed in by hand.
 
-### Run the app locally
+### Run it locally
 ```
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt fastapi uvicorn python-multipart
 # terminal 1 (backend)
 cd app/backend && ../../.venv/bin/uvicorn fraudscope.main:app --port 8000
 # terminal 2 (frontend)
 cd app/frontend && npm install && npm run dev      # http://localhost:5173
 ```
-Artifacts in `app/backend/artifacts/` are produced by `python -m export.export_rf` and `python -m export.export_quantum` (run from `app/backend`); both refuse to save unless the retrained models reproduce the paper's results.
+
+### Rebuilding the model artifacts
+Run from `app/backend` (needs `data/*.csv`): `../../.venv/bin/python -m export.export_rf` and `-m export.export_quantum`, then `-m export.copy_results`. Both export scripts refuse to save unless the retrained models reproduce the paper:
+
+- Random Forest probabilities match `results/novelty/classical_predictions.csv` to 1e-6, and its metrics match `results/final_results.csv`.
+- QSVM labels on the 250-row matched subset are identical to the stored labels.
+- The VQC is a seeded re-run (the paper's weights were never saved and its training was not seeded); its full-test-set F1 and ROC AUC must fall within two standard deviations of the paper's five-seed spread.
+
+### Known accuracy notes
+- The sample set is the paper's matched, class-enriched subset (38% fraud), so it is labelled as such in the UI.
+- Best-F1 thresholds were tuned on the test labels, so the "tuned" results are optimistic; the app serves Random Forest at the default 0.5 threshold.
+- VQC training is not seeded: its matched-subset numbers move between runs (paper first run F1 0.67 / 0.64 / 0.54, rerun 0.62 / 0.62 / 0.51 for none / SMOTE / ADASYN). QSVM is deterministic.
 
 ### Deploying (free tier)
-- **Backend:** Render free web service from `render.yaml` (512 MB RAM, spins down after about 15 minutes idle; first request after sleep takes up to a minute). Set `ALLOWED_ORIGINS` to the frontend URL.
+- **Backend:** Render free web service from `render.yaml` (512 MB RAM, 0.1 CPU, spins down after about 15 minutes idle; the first request after sleep takes up to a minute). Set `ALLOWED_ORIGINS` to the frontend URL. Quantum row caps in `app/backend/fraudscope/config.py` were measured locally and must be re-measured on the host.
 - **Frontend:** Vercel Hobby (personal, non-commercial) with root directory `app/frontend` and env `VITE_API_URL` set to the Render URL. `vercel.json` rewrites client-side routes to `index.html`.
 - **Before a demo:** open the site a few minutes early; the landing page wakes the backend.

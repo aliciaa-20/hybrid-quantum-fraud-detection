@@ -13,7 +13,7 @@ Status: not started / in progress / done
 - [x] **Stage 5: Findings endpoint** (done): results tables from the CSVs with scope labels and caveats.
 - [x] **Stage 6: Frontend scaffold + landing page** (done; visual check at 375px/1280px still to be eyeballed by the user, browser extension was not connected): Vite/React/TS, editorial style, cold-start banner.
 - [x] **Stage 7: Explore, Upload, Findings, About pages** (done; browser-based visual check still pending, extension not connected).
-- [ ] **Stage 8: Hosting decision + deployment + live verification** (not started).
+- [~] **Stage 8: Hosting decision + deployment + live verification** (in progress: config written; waiting on user for accounts and push approval).
 
 ## Notes
 - Python 3.14.7 in `.venv/` (gitignored); Node v24.16.0.
@@ -22,3 +22,4 @@ Status: not started / in progress / done
 
 - Stage 3 results: QSVM labels identical to paper on 250/250 rows; VQC re-run (seed 42) full-test F1 0.0220 and ROC AUC 0.7967, inside the paper 5-seed range; live VQC agrees with the paper stored label on 241/250 sample rows.
 - Stage 4 measured caps (local): QSVM 25 rows ~9.3s (cap 25), VQC 200 rows ~0.7s (cap 200); live timeout 20s (env LIVE_TIMEOUT_S). Task 8 re-measures on the host.
+- Stage 8 measurements: backend peak RSS ~193 MB after a live QSVM + 25-row quantum upload (Render free = 512 MB, 0.1 CPU). Hugging Face Docker Spaces need a paid plan to create, so Render is the free choice. 0.1 CPU is the risk: quantum latency must be re-measured on the host and caps lowered.

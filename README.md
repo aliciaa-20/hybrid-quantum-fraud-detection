@@ -462,3 +462,8 @@ cd app/backend && ../../.venv/bin/uvicorn fraudscope.main:app --port 8000
 cd app/frontend && npm install && npm run dev      # http://localhost:5173
 ```
 Artifacts in `app/backend/artifacts/` are produced by `python -m export.export_rf` and `python -m export.export_quantum` (run from `app/backend`); both refuse to save unless the retrained models reproduce the paper's results.
+
+### Deploying (free tier)
+- **Backend:** Render free web service from `render.yaml` (512 MB RAM, spins down after about 15 minutes idle; first request after sleep takes up to a minute). Set `ALLOWED_ORIGINS` to the frontend URL.
+- **Frontend:** Vercel Hobby (personal, non-commercial) with root directory `app/frontend` and env `VITE_API_URL` set to the Render URL. `vercel.json` rewrites client-side routes to `index.html`.
+- **Before a demo:** open the site a few minutes early; the landing page wakes the backend.

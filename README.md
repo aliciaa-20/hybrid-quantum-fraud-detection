@@ -4,7 +4,7 @@ A hybrid quantum machine learning framework for credit card fraud detection that
 
 **Headline result:** a classical Random Forest beats the quantum models. On the full imbalanced test set Random Forest reaches F1 0.79, while the best Variational Quantum Classifier (VQC) reaches F1 0.02, and every VQC setting loses money in a cost-benefit analysis (best Random Forest +$8,669 vs best VQC -$983). The project does not claim quantum advantage.
 
-**Try it:** [`app/`](#web-app) contains a working demo web app, *Nice Try*, that scores real test-set transactions with Random Forest, QSVM and VQC side by side. The full write-up is in `Hybrid_Quantum_Fraud_Detection_Paper.docx`.
+**Try it:** [`app/`](#web-app) contains a working demo web app, *Nice Try*, that scores real test-set transactions with Random Forest, QSVM and VQC side by side. The full write-up is in `paper/Hybrid_Quantum_Fraud_Detection_Paper.docx`.
 
 ## Overview
 
@@ -292,23 +292,24 @@ hybrid-quantum-fraud-detection/
 |   |   └── artifacts/           exported models, sample table, results CSVs, provenance
 |   └── frontend/                React + Vite + TypeScript UI
 |
-├── data/                        processed CSVs (gitignored; creditcard.csv is not included)
-├── docs/superpowers/            web app design spec and implementation plan
-|
-├── results/                     baseline results, figures and predictions
-|   └── novelty/                 extension experiments: QSVM, thresholds, significance, cost-benefit
 ├── src/                         research code
 |   └── novelty/                 extension experiments
+├── results/                     baseline results, figures and predictions
+|   └── novelty/                 extension experiments: QSVM, thresholds, significance, cost-benefit
+├── data/                        processed CSVs (gitignored; creditcard.csv is not included)
 |
-├── Hybrid_Quantum_Fraud_Detection_Paper.docx, QC_Paper.pdf, QC_Presentation.pptx   paper and slides
-├── build_paper.py               generates the paper .docx
-├── demo.py                      prints a results walkthrough
-├── eda.py, test_dataset.py      exploration and dataset check
+├── paper/                       the paper (.docx), PDF, slides and build_paper.py
+├── scripts/                     eda.py, test_dataset.py, demo.py
+├── docs/superpowers/            web app design spec and implementation plan
+|
 ├── PHASES.md                    research phases and findings log
 ├── STAGES.md                    web app build stages
 ├── render.yaml                  backend deployment (Render)
-└── requirements.txt
+├── requirements.txt
+└── README.md
 ```
+
+All scripts are run from the repository root, for example `python scripts/demo.py`.
 
 ## Implementation Workflow
 
@@ -317,13 +318,13 @@ Run the scripts in this order:
 ### 1. Dataset Verification
 
 ```bash
-python test_dataset.py
+python scripts/test_dataset.py
 ```
 
 ### 2. Exploratory Data Analysis
 
 ```bash
-python eda.py
+python scripts/eda.py
 ```
 
 ### 3. Preprocessing and Feature Selection

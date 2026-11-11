@@ -120,12 +120,12 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
       benchmark data point
 - [x] Confirmed target format from the IOP Publishing template found alongside the papers:
       numbered sections, numbered bracketed references [1]...[n], Abstract+Keywords block
-- [x] Wrote Hybrid_Quantum_Fraud_Detection_Paper.docx (via build_paper.py, python-docx)
+- [x] Wrote Hybrid_Quantum_Fraud_Detection_Paper.docx (via paper/build_paper.py, python-docx)
       covering: Title/Abstract, Literature Review (4 subsections), Methodology (11
       subsections covering the original pipeline + all 6 extensions), Proof of
       Concept/Implementation, Result Analysis and Comparative Analysis (8 subsections with
       7 data tables, all real numbers from Phases 1-6), References (13 sources)
-- Output: Hybrid_Quantum_Fraud_Detection_Paper.docx (repo root)
+- Output: paper/Hybrid_Quantum_Fraud_Detection_Paper.docx
 
 ## Phase 8 — Statistical Significance Testing
 - [x] McNemar's test: best classical model (Random Forest, best across balancing conditions)

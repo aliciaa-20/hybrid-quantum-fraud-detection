@@ -27,3 +27,7 @@ data/*.csv
 # App build artifacts
 app/frontend/node_modules/
 app/frontend/dist/
+
+# Local-only paper artifacts (kept on disk, not published)
+paper/QC_Paper.pdf
+paper/QC_Presentation.pptx

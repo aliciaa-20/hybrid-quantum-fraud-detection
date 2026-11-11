@@ -1,8 +1,8 @@
 """
 Builds the publication-oriented paper document from the Phase 1-6 novelty
 results plus the original submission's data. Run with:
-    .venv/bin/python build_paper.py
-Outputs: Hybrid_Quantum_Fraud_Detection_Paper.docx
+    .venv/bin/python paper/build_paper.py   (run from the repo root)
+Outputs: paper/Hybrid_Quantum_Fraud_Detection_Paper.docx
 """
 
 from docx import Document
@@ -844,8 +844,9 @@ references = [
 for i, ref in enumerate(references, start=1):
     doc.add_paragraph(f"[{i}] {ref}")
 
+import os
+
 doc.save(
-    "/Users/aliciapereira/Downloads/VSC/hybrid-quantum-fraud-detection/"
-    "Hybrid_Quantum_Fraud_Detection_Paper.docx"
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "Hybrid_Quantum_Fraud_Detection_Paper.docx")
 )
-print("Paper saved: Hybrid_Quantum_Fraud_Detection_Paper.docx")
+print("Paper saved: paper/Hybrid_Quantum_Fraud_Detection_Paper.docx")

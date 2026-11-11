@@ -59,6 +59,27 @@ def check_metrics_row(name: str, got: dict, results_row: pd.Series, decimals: in
     print(f"  ok  {name}: metrics match paper to {decimals} decimals")
 
 
+EVAL_LEGIT_N = 155
+
+
+def build_eval_subset(test: pd.DataFrame) -> pd.DataFrame:
+    """The paper's matched 250-row evaluation subset (95 frauds + 155 legit), rebuilt exactly as
+    src/novelty/qsvm_kernel.py does. Column `test_index` keeps each row's position in the test set."""
+    fraud = test[test["Class"] == 1]
+    legit = test[test["Class"] == 0].sample(n=EVAL_LEGIT_N, random_state=config.RANDOM_STATE)
+    subset = pd.concat([fraud, legit]).sample(frac=1, random_state=config.RANDOM_STATE)
+    return subset.reset_index(names="test_index")
+
+
+def check_eval_subset(subset: pd.DataFrame, qsvm_vs_vqc_predictions: pd.DataFrame) -> None:
+    block = qsvm_vs_vqc_predictions[qsvm_vs_vqc_predictions["Balancing"] == "SMOTE"]
+    if len(subset) != 250 or len(block) != 250:
+        raise GateFailure(f"eval subset: {len(subset)} rows, stored block {len(block)} (want 250)")
+    if not (block["Actual"].values == subset["Class"].values).all():
+        raise GateFailure("eval subset: Actual labels differ from stored SMOTE block in order")
+    print(f"  ok  eval subset: 250 rows, {int(subset['Class'].sum())} frauds, order matches stored block")
+
+
 def git_commit() -> str:
     try:
         out = subprocess.run(

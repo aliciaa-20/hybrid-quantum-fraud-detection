@@ -12,8 +12,8 @@
     },
     "gate": "passed",
     "gate_details": "probabilities atol 1e-6; metrics 4dp; alignment; labels",
-    "trained_at": "2026-11-11T09:52:22+00:00",
-    "git_commit": "a05edb3"
+    "trained_at": "2026-11-11T09:53:10+00:00",
+    "git_commit": "df2661c"
   },
   "feature_ranges": {
     "train_min_max": {
@@ -35,7 +35,35 @@
       ]
     },
     "source": "data/train_selected.csv",
-    "trained_at": "2026-11-11T09:52:22+00:00",
-    "git_commit": "a05edb3"
+    "trained_at": "2026-11-11T09:53:10+00:00",
+    "git_commit": "df2661c"
+  },
+  "qsvm": {
+    "model": "QSVM (fidelity quantum kernel + SVC)",
+    "balancing": "SMOTE",
+    "seed": 42,
+    "train_rows": 120,
+    "evaluation_scope": "matched 250-row class-enriched subset",
+    "gate": "passed",
+    "gate_details": "labels identical to stored; metrics 4dp",
+    "trained_at": "2026-11-11T09:56:14+00:00",
+    "git_commit": "df2661c"
+  },
+  "vqc_live": {
+    "model": "VQC (ZZFeatureMap + RealAmplitudes, COBYLA 30 iters)",
+    "balancing": "SMOTE",
+    "seed": 42,
+    "evaluation_scope": "full test set (56,746 rows)",
+    "full_test_metrics": {
+      "Precision": 0.011213047910295617,
+      "Recall": 0.5789473684210527,
+      "F1 Score": 0.022,
+      "ROC AUC": 0.7966518916839856
+    },
+    "gate": "passed",
+    "gate_details": "F1 and ROC AUC within mean \u00b1 2.0 std of the paper's 5 seeds",
+    "note": "Live model is a seeded re-run; stored sample scores are from the paper's run.",
+    "trained_at": "2026-11-11T10:01:07+00:00",
+    "git_commit": "df2661c"
   }
 }

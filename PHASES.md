@@ -191,14 +191,14 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
 ## Phase 11 — Research hardening (2026-11-11) [in progress]
 Goal: close the two weaknesses an examiner would press on. New experiments write to NEW csv files; the paper's
 existing numbers and results/ files are not overwritten until the author decides.
-- [ ] 11a. Prove seeding works: train the VQC twice with the same seed and compare predictions (scratch test).
+- [x] 11a. Prove seeding works (RESULT: `algorithm_globals.random_seed` alone makes two VQC trainings give identical predictions, max diff 0.0; different seeds differ by up to 0.25, so no extra sampler seed is needed): train the VQC twice with the same seed and compare predictions (scratch test).
       `algorithm_globals.random_seed` alone may not be enough if the sampler has shot noise; test with and without a seeded sampler.
 - [ ] 11b. Threshold selection without test leakage (`src/novelty/threshold_validation.py`): hold out 20% of the training
       set as validation, balance only the remaining 80%, pick the best-F1 threshold on validation, report test metrics
       at that threshold next to the old test-tuned numbers. Output: results/novelty/threshold_validation.csv
 - [ ] 11c. Seeded VQC multi-seed (`src/novelty/vqc_multiseed_seeded.py`): the Phase 3 protocol with the initial point seeded,
       so VQC numbers become reproducible. Output: results/novelty/vqc_multiseed_seeded_{raw,summary}.csv
-- [ ] 11d. Matched-subset VQC reconciled (`src/novelty/vqc_matched_seeded.py`): VQC on the 120-row subsets over 5 seeds against
+- [x] 11d. Matched-subset VQC reconciled (RESULT, mean +/- std over 5 seeds, same subsets as QSVM: None 0.678 +/- 0.009 vs QSVM 0.831; SMOTE 0.648 +/- 0.060 vs 0.843; ADASYN 0.502 +/- 0.036 vs 0.557. The paper's first-run Table 4 values 0.6748 / 0.6395 / 0.5395 all fall inside the seeded range. QSVM clearly beats VQC under None and SMOTE; under ADASYN the gap is within VQC seed variance, the best VQC seed reaching 0.556 vs QSVM 0.557) (`src/novelty/vqc_matched_seeded.py`): VQC on the 120-row subsets over 5 seeds against
       QSVM's deterministic numbers, to settle paper Table 4 (first run vs rerun). Output: results/novelty/vqc_matched_seeded.csv
 - Feature-selection audit done: dedupe -> split -> scale and mutual information fitted on train only. 3.9% of test rows share an
   identical 4-feature vector with a training row, all legitimate; none of the 95 test frauds do, and Random Forest scores

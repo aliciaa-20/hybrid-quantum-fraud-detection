@@ -447,3 +447,9 @@ Artificial Intelligence and Machine Learning
 ## License
 
 This project is intended for educational and academic use.
+
+## Web app (in progress)
+
+A public demo app built on this research is being added under `app/` (FastAPI backend in `app/backend`, React frontend in `app/frontend`). Plan: `docs/superpowers/plans/2026-11-11-fraudscope-app.md`; progress: `STAGES.md`.
+
+Backend setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt fastapi uvicorn python-multipart`.

@@ -2,6 +2,10 @@
 
 A hybrid quantum machine learning framework for credit card fraud detection that investigates the effect of feature selection and class balancing techniques on quantum and classical machine learning models.
 
+**Headline result:** a classical Random Forest beats the quantum models. On the full imbalanced test set Random Forest reaches F1 0.79, while the best Variational Quantum Classifier (VQC) reaches F1 0.02, and every VQC setting loses money in a cost-benefit analysis (best Random Forest +$8,669 vs best VQC -$983). The project does not claim quantum advantage.
+
+**Try it:** [`app/`](#web-app) contains a working demo web app, *Nice Try*, that scores real test-set transactions with Random Forest, QSVM and VQC side by side. The full write-up is in `Hybrid_Quantum_Fraud_Detection_Paper.docx`.
+
 ## Overview
 
 Credit card fraud detection is a highly imbalanced classification problem where fraudulent transactions represent only a very small proportion of all transactions.
@@ -11,8 +15,9 @@ This project develops and evaluates a hybrid quantum machine learning pipeline c
 - Mutual Information based feature selection
 - SMOTE and ADASYN data balancing
 - Quantum feature encoding
-- Variational Quantum Classifier (VQC)
+- Variational Quantum Classifier (VQC) and a quantum kernel classifier (QSVM)
 - Classical machine learning baselines
+- Threshold optimization, multi-seed robustness, qubit scaling, noise simulation, significance tests and a cost-benefit analysis
 - Accuracy, precision, recall, F1-score, and ROC AUC evaluation
 
 ## Problem Statement
@@ -212,6 +217,22 @@ Because the dataset is highly imbalanced, accuracy alone is not sufficient.
 
 The project does not claim that the quantum model outperforms classical machine learning. Instead, it investigates the behaviour of a hybrid quantum classifier under different feature selection and class balancing conditions.
 
+## Extended Experiments
+
+Beyond the original VQC study (the sections above), further experiments were added to test how robust the findings are. They are logged phase by phase in `PHASES.md`, with code in `src/novelty/` and outputs in `results/novelty/`.
+
+| Experiment | What it found |
+|---|---|
+| Threshold optimization | Tuning the decision threshold rescues Random Forest + ADASYN (F1 0.0642 to 0.7636) but barely helps VQC (best 0.0578). The tuned thresholds were chosen using the test labels, so these figures are optimistic. |
+| QSVM vs VQC (matched 250-row subset, 38% fraud) | QSVM beats VQC under every balancing: F1 0.8306 / 0.8432 / 0.5567 vs 0.6235 / 0.6203 / 0.5057 (none / SMOTE / ADASYN). McNemar tests: p = 6.0e-6, 9.0e-6, 5.3e-5. This subset is class-enriched, so it is not comparable to full-test-set numbers. |
+| Multi-seed robustness (5 seeds) | VQC F1 is unstable: 0.0185 +/- 0.0092 (none), 0.0241 +/- 0.0090 (SMOTE), 0.0057 +/- 0.0026 (ADASYN). |
+| Qubit scaling (2, 4, 6, 8 qubits) | More qubits did worse on the simulator: F1 0.0822 at 2 qubits vs 0.0135 at 4 and 0.0042 at 8, while runtime grew from about 56 s to about 1,226 s. |
+| Noise simulation | Noiseless F1 0.0195 vs noisy 0.0157. |
+| Cost-benefit | Random Forest nets up to +$8,669; every VQC setting is negative (best -$983). |
+| Real IBM hardware | Attempted but abandoned; documented as a limitation. |
+
+**Reproducibility note:** VQC training is not seeded by this project's random seed in the Qiskit version used, so VQC numbers move between runs (for example the matched-subset F1 for none-balancing was 0.6748 in the paper's first run and 0.6235 on rerun). QSVM is deterministic and reproduces exactly. The paper reports the first run; the CSVs in `results/novelty/` hold the rerun.
+
 ## Confusion Matrices
 
 ### Random Forest + None
@@ -387,6 +408,9 @@ The test set remains fixed and untouched across the experiments.
 - The dataset contains an extremely small proportion of fraudulent transactions.
 - Accuracy can be misleading for this problem.
 - The current VQC configuration is exploratory rather than production-ready.
+- All quantum results come from a simulator; no real quantum hardware results are included.
+- QSVM was only evaluated on a small, class-enriched subset because kernel evaluation does not scale to the full test set.
+- VQC results vary between runs (see the reproducibility note above).
 - The results should not be interpreted as evidence that quantum machine learning is superior to classical machine learning for fraud detection.
 
 ## Educational Value
@@ -419,6 +443,8 @@ It provides practical experience with:
 - Qiskit
 - Qiskit Aer
 - Qiskit Machine Learning
+- FastAPI and Uvicorn (web app backend)
+- React, TypeScript, Vite and Motion (web app frontend)
 
 ## Disclaimer
 

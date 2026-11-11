@@ -187,3 +187,19 @@ Status legend: [ ] pending, [~] in progress, [x] done, [!] blocked/infeasible (r
 ## Housekeeping
 - Commit after each phase completes (git commit only, no push — user is not a GitHub
   contributor on this repo and wants it to stay that way).
+
+## Phase 11 — Research hardening (2026-11-11) [in progress]
+Goal: close the two weaknesses an examiner would press on. New experiments write to NEW csv files; the paper's
+existing numbers and results/ files are not overwritten until the author decides.
+- [ ] 11a. Prove seeding works: train the VQC twice with the same seed and compare predictions (scratch test).
+      `algorithm_globals.random_seed` alone may not be enough if the sampler has shot noise; test with and without a seeded sampler.
+- [ ] 11b. Threshold selection without test leakage (`src/novelty/threshold_validation.py`): hold out 20% of the training
+      set as validation, balance only the remaining 80%, pick the best-F1 threshold on validation, report test metrics
+      at that threshold next to the old test-tuned numbers. Output: results/novelty/threshold_validation.csv
+- [ ] 11c. Seeded VQC multi-seed (`src/novelty/vqc_multiseed_seeded.py`): the Phase 3 protocol with the initial point seeded,
+      so VQC numbers become reproducible. Output: results/novelty/vqc_multiseed_seeded_{raw,summary}.csv
+- [ ] 11d. Matched-subset VQC reconciled (`src/novelty/vqc_matched_seeded.py`): VQC on the 120-row subsets over 5 seeds against
+      QSVM's deterministic numbers, to settle paper Table 4 (first run vs rerun). Output: results/novelty/vqc_matched_seeded.csv
+- Feature-selection audit done: dedupe -> split -> scale and mutual information fitted on train only. 3.9% of test rows share an
+  identical 4-feature vector with a training row, all legitimate; none of the 95 test frauds do, and Random Forest scores
+  identically with those rows excluded, so no leakage affects the fraud metrics.

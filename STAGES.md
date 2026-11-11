@@ -7,7 +7,7 @@ Branch: `feature/fraudscope-app`. Research-phase tracking stays in `PHASES.md`.
 Status: not started / in progress / done
 
 - [x] **Stage 1: Foundations** (done): tracker, `.venv`, approved deps, `app/backend` skeleton and config.
-- [ ] **Stage 2: Reproduction gate + RF export** (not started): retrain Random Forest, refuse to save unless it reproduces the paper.
+- [x] **Stage 2: Reproduction gate + RF export** (done): retrain Random Forest, refuse to save unless it reproduces the paper.
 - [ ] **Stage 3: Quantum export + sample table** (not started): QSVM and VQC artifacts, 250-row sample set, provenance.
 - [ ] **Stage 4: Scoring API + upload validation** (not started): FastAPI routes, caps, live fallback.
 - [ ] **Stage 5: Findings endpoint** (not started): results tables from the CSVs with scope labels and caveats.

@@ -1,0 +1,41 @@
+{
+  "random_forest": {
+    "model": "Random Forest",
+    "balancing": "None",
+    "seed": 42,
+    "threshold": 0.5,
+    "params": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "gate": "passed",
+    "gate_details": "probabilities atol 1e-6; metrics 4dp; alignment; labels",
+    "trained_at": "2026-11-11T09:52:22+00:00",
+    "git_commit": "a05edb3"
+  },
+  "feature_ranges": {
+    "train_min_max": {
+      "V10": [
+        -22.908931371678083,
+        22.127381451639277
+      ],
+      "V12": [
+        -18.696519260499866,
+        7.908740701396684
+      ],
+      "V14": [
+        -20.13304335007468,
+        11.032738087433833
+      ],
+      "V17": [
+        -29.844335305329395,
+        10.97615788385266
+      ]
+    },
+    "source": "data/train_selected.csv",
+    "trained_at": "2026-11-11T09:52:22+00:00",
+    "git_commit": "a05edb3"
+  }
+}

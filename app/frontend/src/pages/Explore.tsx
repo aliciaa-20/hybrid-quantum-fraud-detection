@@ -93,11 +93,11 @@ export default function Explore() {
                   {" "}(anonymized components from the public ULB dataset)
                 </p>
                 <div className="cards3">
-                  <ScoreCard model="Random Forest" result={selected.rf} actual={selected.actual} />
+                  <ScoreCard model="Random Forest" result={selected.rf} actual={selected.actual} run={selected.id} />
                   <ScoreCard model="QSVM" result={selected.qsvm} actual={selected.actual} experimental
-                             caption="Matched-subset model, simulator" />
+                             caption="Matched-subset model, simulator" run={selected.id} delay={300} />
                   <ScoreCard model="VQC (paper run)" result={selected.vqc_paper} actual={selected.actual} experimental
-                             caption="Stored output from the paper's run" />
+                             caption="Stored output from the paper's run" run={selected.id} delay={600} />
                 </div>
 
                 <button onClick={runLive} disabled={liveBusy}>
@@ -107,8 +107,8 @@ export default function Explore() {
                 {live && (
                   <div className="live">
                     <div className="cards3">
-                      <ScoreCard model="QSVM (live)" result={live.qsvm} actual={selected.actual} experimental />
-                      <ScoreCard model="VQC (live re-run)" result={live.vqc_live} actual={selected.actual} experimental />
+                      <ScoreCard model="QSVM (live)" result={live.qsvm} actual={selected.actual} experimental run={`live-${selected.id}`} />
+                      <ScoreCard model="VQC (live re-run)" result={live.vqc_live} actual={selected.actual} experimental run={`live-${selected.id}`} delay={300} />
                     </div>
                     {live.notes.map((n) => <p key={n} className="caveat">{n}</p>)}
                   </div>

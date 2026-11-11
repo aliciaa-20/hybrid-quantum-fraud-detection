@@ -1,4 +1,5 @@
 import type { ModelScore } from "../api";
+import VerdictCollapse from "./VerdictCollapse";
 
 type Props = {
   model: string;
@@ -6,6 +7,8 @@ type Props = {
   actual?: 0 | 1;
   experimental?: boolean;
   caption?: string;
+  run?: number | string;
+  delay?: number;
 };
 
 export function outcome(label: 0 | 1, actual: 0 | 1): { text: string; ok: boolean } {
@@ -13,8 +16,7 @@ export function outcome(label: 0 | 1, actual: 0 | 1): { text: string; ok: boolea
   return actual === 1 ? { text: "Missed fraud", ok: false } : { text: "False alarm", ok: false };
 }
 
-export default function ScoreCard({ model, result, actual, experimental, caption }: Props) {
-  const verdict = result.label === 1 ? "Fraud" : "Legitimate";
+export default function ScoreCard({ model, result, actual, experimental, caption, run = 0, delay = 0 }: Props) {
   const o = actual === undefined ? null : outcome(result.label, actual);
   return (
     <div className="score-card">
@@ -23,9 +25,8 @@ export default function ScoreCard({ model, result, actual, experimental, caption
         {experimental && <span className="tag">experimental</span>}
         <span className="tag muted-tag">{result.source}</span>
       </div>
-      <div className={`verdict ${result.label === 1 ? "bad" : "good"}`}>{verdict}</div>
-      <div className="muted">Fraud probability {(result.score * 100).toFixed(1)}%</div>
-      {o && <div className={o.ok ? "good" : "bad"}>{o.text}</div>}
+      <VerdictCollapse label={result.label} score={result.score} run={run} delay={delay} />
+      {o && <div className={`outcome ${o.ok ? "good" : "bad"}`}>{o.text}</div>}
       {caption && <div className="muted small">{caption}</div>}
     </div>
   );

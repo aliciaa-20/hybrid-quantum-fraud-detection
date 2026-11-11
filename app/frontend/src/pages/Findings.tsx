@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getFindings } from "../api";
 import type { Findings as FindingsData } from "../api";
 import { ServerBanner, useServerStatus } from "../components/ServerStatus";
+import BarChart from "../components/BarChart";
 import MetricTable from "../components/MetricTable";
 
 export default function Findings() {
@@ -15,6 +16,12 @@ export default function Findings() {
 
   const vqc = data?.cost_benefit.rows.filter((r) => r["Model"] === "VQC") ?? [];
   const allVqcNegative = vqc.length > 0 && vqc.every((r) => Number(r["Net Benefit ($)"]) < 0);
+  const bestByModel = data
+    ? Array.from(new Set(data.cost_benefit.rows.map((r) => String(r["Model"])))).map((m) => ({
+        label: m === "Logistic Regression" ? "LR" : m === "Random Forest" ? "RF" : m,
+        value: Math.max(...data.cost_benefit.rows.filter((r) => r["Model"] === m).map((r) => Number(r["Net Benefit ($)"]))),
+      }))
+    : [];
   const classical = data
     ? { ...data.classical_quantum, rows: [...data.classical_quantum.rows].sort((a, b) => Number(b["F1 Score"]) - Number(a["F1 Score"])) }
     : null;
@@ -40,6 +47,8 @@ export default function Findings() {
             <h3>What it costs: net benefit</h3>
             <p className="muted small">Net benefit = fraud value caught minus investigation cost.</p>
             {allVqcNegative && <p className="caveat">Every VQC setting in this table loses money.</p>}
+            <p className="muted small">Best net benefit per model across all settings:</p>
+            <BarChart bars={bestByModel} />
             <MetricTable table={data.cost_benefit}
               columns={["Model", "Balancing", "Threshold", "TP", "FP", "FN", "TN", "Net Benefit ($)"]} />
 

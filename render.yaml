@@ -1,7 +1,7 @@
 # Render Blueprint for the FastAPI backend (free plan).
 services:
   - type: web
-    name: fraudscope-api
+    name: nice-try-api
     runtime: python
     plan: free
     rootDir: app/backend

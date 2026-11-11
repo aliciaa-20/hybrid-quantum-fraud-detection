@@ -1,4 +1,4 @@
-# Stages: web app (working name "FraudScope")
+# Stages: web app ("Nice Try")
 
 Plan: `docs/superpowers/plans/2026-11-11-fraudscope-app.md`
 Spec: `docs/superpowers/specs/2026-11-11-fraudscope-app-design.md`
@@ -13,6 +13,7 @@ Status: not started / in progress / done
 - [x] **Stage 5: Findings endpoint** (done): results tables from the CSVs with scope labels and caveats.
 - [x] **Stage 6: Frontend scaffold + landing page** (done; visual check at 375px/1280px still to be eyeballed by the user, browser extension was not connected): Vite/React/TS, editorial style, cold-start banner.
 - [x] **Stage 7: Explore, Upload, Findings, About pages** (done; browser-based visual check still pending, extension not connected).
+- [x] **Stage 9: Restyle ("Nice Try", dark cosmic + motion)** (done, user-requested): replaces the editorial look; frontend only.
 - [~] **Stage 8: Hosting decision + deployment + live verification** (in progress: config written; branch pushed; waiting on user to create Render and Vercel accounts).
 
 ## Notes

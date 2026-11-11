@@ -9,7 +9,7 @@ Status: not started / in progress / done
 - [x] **Stage 1: Foundations** (done): tracker, `.venv`, approved deps, `app/backend` skeleton and config.
 - [x] **Stage 2: Reproduction gate + RF export** (done): retrain Random Forest, refuse to save unless it reproduces the paper.
 - [x] **Stage 3: Quantum export + sample table** (done): QSVM and VQC artifacts, 250-row sample set, provenance.
-- [ ] **Stage 4: Scoring API + upload validation** (not started): FastAPI routes, caps, live fallback.
+- [x] **Stage 4: Scoring API + upload validation** (done): FastAPI routes, caps, live fallback.
 - [ ] **Stage 5: Findings endpoint** (not started): results tables from the CSVs with scope labels and caveats.
 - [ ] **Stage 6: Frontend scaffold + landing page** (not started): Vite/React/TS, editorial style, cold-start banner.
 - [ ] **Stage 7: Explore, Upload, Findings, About pages** (not started).
@@ -21,3 +21,4 @@ Status: not started / in progress / done
 - No new test suite (user rule); verification is by runnable commands in the plan.
 
 - Stage 3 results: QSVM labels identical to paper on 250/250 rows; VQC re-run (seed 42) full-test F1 0.0220 and ROC AUC 0.7967, inside the paper 5-seed range; live VQC agrees with the paper stored label on 241/250 sample rows.
+- Stage 4 measured caps (local): QSVM 25 rows ~9.3s (cap 25), VQC 200 rows ~0.7s (cap 200); live timeout 20s (env LIVE_TIMEOUT_S). Task 8 re-measures on the host.

@@ -12,6 +12,7 @@ FILES = [
     "novelty/cost_benefit.csv",
     "novelty/qsvm_vs_vqc.csv",
     "novelty/threshold_optimization.csv",
+    "novelty/threshold_validation.csv",
 ]
 
 

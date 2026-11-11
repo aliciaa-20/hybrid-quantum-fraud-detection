@@ -67,12 +67,20 @@ export default function Findings() {
     return { rfF1: best("Random Forest"), vqcF1: best("VQC"), rfNet: bestNet("Random Forest"), vqcNet: bestNet("VQC") };
   }, [cq, cb]);
 
+  const validated = data?.validated?.rows ?? [];
+  const maxOr0 = (xs: number[]) => (xs.length ? Math.max(...xs) : 0);
+  // default: cut-off 0.5; tuned: cut-off picked on the TEST labels (optimistic); validated: picked on held-out validation data
   const modeRows = cb.filter((r) => (mode === "default" ? String(r["Threshold"]).startsWith("Default") : r["Threshold"] === "Best-F1"));
   const costBars = ["Random Forest", "SVM", "Logistic Regression", "VQC"].map((m) => ({
     label: short(m),
-    value: Math.max(...modeRows.filter((r) => r["Model"] === m).map((r) => num(r["Net Benefit ($)"]))),
+    value: mode === "validated"
+      ? maxOr0(validated.filter((r) => r["Model"] === m).map((r) => num(r["Net Benefit ($) @val"])))
+      : maxOr0(modeRows.filter((r) => r["Model"] === m).map((r) => num(r["Net Benefit ($)"]))),
   }));
   const losing = modeRows.filter((r) => num(r["Net Benefit ($)"]) < 0).length;
+  const classicalVal = validated.filter((r) => r["Model"] !== "VQC");
+  const optimism = classicalVal.length ? classicalVal.reduce((a, r) => a + num(r["Optimism (old - new)"]), 0) / classicalVal.length : 0;
+  const valBest = (m: string) => maxOr0(validated.filter((r) => r["Model"] === m).map((r) => num(r["Net Benefit ($) @val"])));
 
   const qsvm = qv.find((r) => r["Model"] === "QSVM" && r["Balancing"] === qBalancing);
   const vqcM = qv.find((r) => String(r["Model"]).startsWith("VQC") && r["Balancing"] === qBalancing);
@@ -151,17 +159,22 @@ export default function Findings() {
               <h2 className="section-title">What does it cost?</h2>
               <p className="muted">Net benefit is the fraud value a model catches minus what it costs analysts to investigate its alerts. Switch the cut-off to see why it matters.</p>
               <div className="controls">
-                <Segmented label="Cut-off" options={[{ value: "default", label: "Default (0.5)" }, { value: "tuned", label: "Tuned for best F1" }]} value={mode} onChange={setMode} />
+                <Segmented label="Cut-off" options={[
+                  { value: "default", label: "Default (0.5)" },
+                  ...(validated.length ? [{ value: "validated", label: "Tuned on validation data" }] : []),
+                  { value: "tuned", label: "Tuned on the test set (optimistic)" },
+                ]} value={mode} onChange={setMode} />
               </div>
               <div className="panel">
                 <p className="muted small">Best result for each model across its training options:</p>
                 <BarChart key={mode} bars={costBars} />
                 <p className="story">
-                  {mode === "default"
-                    ? <>At the default cut-off, <strong className="bad">{losing} of {modeRows.length}</strong> settings lose money. Balancing the training data makes models over-suspicious, and every false alarm costs an investigation.</>
-                    : <>Tuning the cut-off rescues the classical models, but the best quantum VQC setting still ends at <strong className="bad">{money(headline.vqcNet)}</strong>.</>}
+                  {mode === "default" && <>At the default cut-off, <strong className="bad">{losing} of {modeRows.length}</strong> settings lose money. Balancing the training data makes models over-suspicious, and every false alarm costs an investigation.</>}
+                  {mode === "validated" && <>This is the honest way to tune: the cut-off is chosen on data the model was not scored on, then applied once to the test set. Random Forest still nets <strong className="good">{money(valBest("Random Forest"))}</strong>, while the best VQC setting ends at <strong className="bad">{money(valBest("VQC"))}</strong>. Picking cut-offs with the test labels instead would have overstated the classical models' F1 by about <strong>{optimism.toFixed(2)}</strong> on average.</>}
+                  {mode === "tuned" && <>Tuning the cut-off on the test labels rescues the classical models, but the best quantum VQC setting still ends at <strong className="bad">{money(headline.vqcNet)}</strong>. Treat this as an upper bound, not a result.</>}
                 </p>
                 {mode === "tuned" && <p className="caveat">{data.cost_benefit.caveat}</p>}
+                {mode === "validated" && data.validated?.caveat && <p className="caveat">{data.validated.caveat}</p>}
               </div>
             </Reveal>
 

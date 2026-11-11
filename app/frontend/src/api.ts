@@ -31,6 +31,7 @@ export type Findings = {
   cost_benefit: FindingsTable;
   qsvm_vs_vqc: FindingsTable;
   thresholds: FindingsTable;
+  validated: FindingsTable;
 };
 export type Meta = {
   provenance: Record<string, Record<string, unknown>>;

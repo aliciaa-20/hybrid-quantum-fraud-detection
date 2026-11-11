@@ -4,12 +4,15 @@ import pandas as pd
 
 from fraudscope import config
 
-TUNED_CAVEAT = "Best-F1 thresholds were selected using the test labels, so these figures are optimistic."
+TUNED_CAVEAT = "Best-F1 thresholds were selected using the test labels, so these figures are optimistic."  # see "validated" for the honest version
 
 
-def _table(rel: str, scope: str, caveat: str | None = None) -> dict:
+def _table(rel: str, scope: str, caveat: str | None = None, optional: bool = False) -> dict:
+    path = config.RESULTS_DIR / rel
+    if optional and not path.exists():  # the UI hides sections whose table is empty
+        return {"rows": [], "scope": scope, "caveat": caveat}
     # keep_default_na=False: the balancing label "None" must stay a string.
-    df = pd.read_csv(config.RESULTS_DIR / rel, keep_default_na=False)
+    df = pd.read_csv(path, keep_default_na=False)
     return {"rows": df.to_dict(orient="records"), "scope": scope, "caveat": caveat}
 
 
@@ -26,4 +29,9 @@ def load_findings() -> dict:
                               "(none / SMOTE / ADASYN); the rerun shown here scored 0.62 / 0.62 / 0.51. "
                               "QSVM is deterministic and reproduces exactly."),
         "thresholds": _table("novelty/threshold_optimization.csv", "full test set (56,746 rows)", TUNED_CAVEAT),
+        "validated": _table(
+            "novelty/threshold_validation.csv", "full test set (56,746 rows); cut-off chosen on held-out validation data",
+            "Models were refit on 80% of the training data so a validation split could be held out, so these figures "
+            "differ slightly from the main table. VQC uses a seeded run and the paper's quantum training subsets.",
+            optional=True),
     }

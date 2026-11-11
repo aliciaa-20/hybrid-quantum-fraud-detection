@@ -21,3 +21,5 @@ data/*.csv
 
 # Python environment files
 .env
+# Visual companion mockups
+.superpowers/

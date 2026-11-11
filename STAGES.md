@@ -10,7 +10,7 @@ Status: not started / in progress / done
 - [x] **Stage 2: Reproduction gate + RF export** (done): retrain Random Forest, refuse to save unless it reproduces the paper.
 - [x] **Stage 3: Quantum export + sample table** (done): QSVM and VQC artifacts, 250-row sample set, provenance.
 - [x] **Stage 4: Scoring API + upload validation** (done): FastAPI routes, caps, live fallback.
-- [ ] **Stage 5: Findings endpoint** (not started): results tables from the CSVs with scope labels and caveats.
+- [x] **Stage 5: Findings endpoint** (done): results tables from the CSVs with scope labels and caveats.
 - [ ] **Stage 6: Frontend scaffold + landing page** (not started): Vite/React/TS, editorial style, cold-start banner.
 - [ ] **Stage 7: Explore, Upload, Findings, About pages** (not started).
 - [ ] **Stage 8: Hosting decision + deployment + live verification** (not started).

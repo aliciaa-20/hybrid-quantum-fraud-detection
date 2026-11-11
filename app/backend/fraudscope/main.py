@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from fraudscope import config, scoring
+from fraudscope.findings import load_findings
 from fraudscope.registry import load_registry
 from fraudscope.schemas import LiveOut, ModelScore, SampleOut, ScoreOut, ScoreRow
 from fraudscope.uploads import UploadError, parse_upload
@@ -70,6 +71,11 @@ def meta():
         "caps": {"rf": config.RF_MAX_ROWS, "qsvm": config.QSVM_MAX_ROWS, "vqc": config.VQC_MAX_ROWS},
         "sample_scope": "matched 250-row class-enriched subset (95 fraud + 155 legitimate)",
     }
+
+
+@app.get("/api/findings")
+def findings():
+    return load_findings()
 
 
 @app.get("/api/samples", response_model=list[SampleOut])

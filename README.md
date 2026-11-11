@@ -453,3 +453,12 @@ This project is intended for educational and academic use.
 A public demo app built on this research is being added under `app/` (FastAPI backend in `app/backend`, React frontend in `app/frontend`). Plan: `docs/superpowers/plans/2026-11-11-fraudscope-app.md`; progress: `STAGES.md`.
 
 Backend setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt fastapi uvicorn python-multipart`.
+
+### Run the app locally
+```
+# terminal 1 (backend)
+cd app/backend && ../../.venv/bin/uvicorn fraudscope.main:app --port 8000
+# terminal 2 (frontend)
+cd app/frontend && npm install && npm run dev      # http://localhost:5173
+```
+Artifacts in `app/backend/artifacts/` are produced by `python -m export.export_rf` and `python -m export.export_quantum` (run from `app/backend`); both refuse to save unless the retrained models reproduce the paper's results.

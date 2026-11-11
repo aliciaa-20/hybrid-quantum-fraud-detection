@@ -12,7 +12,7 @@ Status: not started / in progress / done
 - [x] **Stage 4: Scoring API + upload validation** (done): FastAPI routes, caps, live fallback.
 - [x] **Stage 5: Findings endpoint** (done): results tables from the CSVs with scope labels and caveats.
 - [x] **Stage 6: Frontend scaffold + landing page** (done; visual check at 375px/1280px still to be eyeballed by the user, browser extension was not connected): Vite/React/TS, editorial style, cold-start banner.
-- [ ] **Stage 7: Explore, Upload, Findings, About pages** (not started).
+- [x] **Stage 7: Explore, Upload, Findings, About pages** (done; browser-based visual check still pending, extension not connected).
 - [ ] **Stage 8: Hosting decision + deployment + live verification** (not started).
 
 ## Notes

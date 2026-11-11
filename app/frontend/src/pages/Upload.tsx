@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getMeta, getSamples, scoreCsv } from "../api";
 import type { Meta, ModelScore, ScoreResult } from "../api";
+import Reveal from "../components/Reveal";
 import { ServerBanner, useServerStatus } from "../components/ServerStatus";
 
 const cell = (m: ModelScore | null) =>
@@ -60,7 +61,7 @@ export default function Upload() {
         {busy && <p role="status">Scoring… the quantum models can take several seconds.</p>}
         {error && <p className="bad" role="alert">{error}</p>}
         {result && (
-          <>
+          <Reveal>
             {result.notes.map((n) => <p key={n} className="caveat">{n}</p>)}
             <div className="table-wrap">
               <table>
@@ -81,7 +82,7 @@ export default function Upload() {
               </table>
             </div>
             {result.rows.length > 1000 && <p className="muted small">Showing the first 1,000 of {result.rows.length.toLocaleString("en-US")} rows.</p>}
-          </>
+          </Reveal>
         )}
       </section>
     </>

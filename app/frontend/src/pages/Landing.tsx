@@ -4,14 +4,15 @@ import { Link } from "react-router-dom";
 import { getFindings, getSamples } from "../api";
 import type { Findings, Sample } from "../api";
 import CountUp from "../components/CountUp";
+import Reveal from "../components/Reveal";
 import { ServerBanner, useServerStatus } from "../components/ServerStatus";
 import Ticker from "../components/Ticker";
 import VerdictCollapse from "../components/VerdictCollapse";
 import WordReveal from "../components/WordReveal";
 
-function bestNet(f: Findings, model: string): number {
-  return Math.max(...f.cost_benefit.rows.filter((r) => r["Model"] === model).map((r) => Number(r["Net Benefit ($)"])));
-}
+const cbRows = (f: Findings, model: string) => f.cost_benefit.rows.filter((r) => r["Model"] === model);
+const bestNet = (f: Findings, model: string) => Math.max(...cbRows(f, model).map((r) => Number(r["Net Benefit ($)"])));
+const txn = (n: number) => n.toLocaleString("en-US");
 
 export default function Landing() {
   const status = useServerStatus();
@@ -37,6 +38,12 @@ export default function Landing() {
 
   const rf = findings ? bestNet(findings, "Random Forest") : null;
   const vqc = findings ? bestNet(findings, "VQC") : null;
+  // Random Forest with no balancing at the default 0.5 threshold: the configuration the app serves.
+  const rfDefault = findings?.cost_benefit.rows.find(
+    (r) => r["Model"] === "Random Forest" && r["Balancing"] === "None" && String(r["Threshold"]).startsWith("Default"),
+  );
+  const caught = rfDefault ? Number(rfDefault["TP"]) : null;
+  const totalFraud = rfDefault ? Number(rfDefault["TP"]) + Number(rfDefault["FN"]) : null;
 
   const entries = [
     { to: "/explore", title: "Browse transactions", text: "Real test-set transactions, scored by three models side by side." },
@@ -48,7 +55,6 @@ export default function Landing() {
     <>
       <ServerBanner state={status} />
       <section className="hero2">
-        <div className="giant" aria-hidden="true">NICE TRY</div>
         <div className="hero-in">
           <p className="eyebrow">Hybrid quantum fraud detection</p>
           <h1>
@@ -64,45 +70,45 @@ export default function Landing() {
             <button className="go" onClick={score} disabled={!ready}>Score it →</button>
           </div>
 
-          <AnimatePresence mode="wait">
-            {picked && (
-              <motion.div
-                key={picked.run}
-                className="result"
-                initial={{ opacity: 0, y: 16, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="result-head">
-                  <strong>Random Forest · #{picked.sample.test_index}</strong>
-                  <span className="muted small">random demo transaction</span>
-                </div>
-                <VerdictCollapse label={picked.sample.rf.label} score={picked.sample.rf.score} run={picked.run} big />
-                <RevealTruth sample={picked.sample} run={picked.run} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="result-slot">
+            <AnimatePresence mode="wait">
+              {picked && (
+                <motion.div
+                  key={picked.run}
+                  className="result"
+                  initial={{ opacity: 0, y: 16, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1, transition: { type: "spring", bounce: 0, duration: 0.45 } }}
+                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                >
+                  <div className="result-head">
+                    <strong>Random Forest · Txn {txn(picked.sample.test_index)}</strong>
+                    <span className="muted small">random demo transaction</span>
+                  </div>
+                  <VerdictCollapse label={picked.sample.rf.label} score={picked.sample.rf.score} run={picked.run} big />
+                  <RevealTruth sample={picked.sample} run={picked.run} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        <div className="orb-wrap" aria-hidden="true">
-          <div className="ring r1" /><div className="ring r2" /><div className="ring r3" />
+        <div className="stage" aria-hidden="true">
+          <div className="giant">NICE TRY</div>
           <div className="orb" />
+          <Ticker samples={samples} />
         </div>
-        <Ticker samples={samples} />
       </section>
 
       <section className="entries" aria-label="Where to start">
         {entries.map((e, i) =>
           status === "ready" ? (
-            <motion.div key={e.to} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.5 }}>
+            <Reveal key={e.to} delay={i * 0.08}>
               <Link to={e.to} className="entry">
                 <h2>{e.title}</h2>
                 <p>{e.text}</p>
                 <span className="arrow">→</span>
               </Link>
-            </motion.div>
+            </Reveal>
           ) : (
             <div key={e.to} className="entry disabled" aria-disabled="true">
               <h2>{e.title}</h2>
@@ -113,19 +119,27 @@ export default function Landing() {
       </section>
 
       <section className="stats" aria-label="Headline result">
-        <div>
+        <Reveal className="stat">
+          <span className="stat-label">Random Forest, frauds caught at default settings</span>
+          <span className="stat-value">
+            {caught === null || totalFraud === null ? "…" : <><CountUp to={caught} /> of {totalFraud}</>}
+          </span>
+        </Reveal>
+        <Reveal className="stat" delay={0.08}>
           <span className="stat-label">Random Forest, best net benefit</span>
           <span className="stat-value good">{rf === null ? "…" : <CountUp to={Math.abs(rf)} prefix={rf < 0 ? "−$" : "+$"} />}</span>
-        </div>
-        <div>
+        </Reveal>
+        <Reveal className="stat" delay={0.16}>
           <span className="stat-label">Quantum VQC, best net benefit in any setting</span>
           <span className="stat-value bad">{vqc === null ? "…" : <CountUp to={Math.abs(vqc)} prefix={vqc < 0 ? "−$" : "+$"} />}</span>
-        </div>
+        </Reveal>
+      </section>
+      <Reveal>
         <p className="stat-note">
           Net benefit is fraud value caught minus investigation cost, on the full test set. See Findings for the
           definition and caveats.
         </p>
-      </section>
+      </Reveal>
     </>
   );
 }

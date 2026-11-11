@@ -21,7 +21,7 @@ export default function BarChart({ bars }: { bars: Bar[] }) {
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
               viewport={{ once: true, margin: "0px 0px -10% 0px" }}
-              transition={{ duration: 0.9, delay: i * 0.1, ease: [0.2, 0.9, 0.2, 1] }}
+              transition={{ type: "spring", bounce: 0.1, duration: 1, delay: i * 0.1 }}
             />
             <span className={`bval ${neg ? "bad" : "good"}`} style={neg ? { top: `calc(50% + ${pct}% + 4px)` } : { bottom: `calc(50% + ${pct}% + 4px)` }}>
               {money(b.value)}

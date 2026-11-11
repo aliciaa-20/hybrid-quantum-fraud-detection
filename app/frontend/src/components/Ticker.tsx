@@ -7,17 +7,16 @@ export default function Ticker({ samples }: { samples: Sample[] }) {
   const frauds = samples.filter((s) => s.actual === 1).slice(0, 12);
   const legit = samples.filter((s) => s.actual === 0).slice(0, 12);
   const mixed = frauds.flatMap((f, i) => (legit[i] ? [f, legit[i]] : [f]));
-  const items = mixed.map((s) => ({
-    id: s.test_index,
-    fraud: s.rf.label === 1,
-    score: s.rf.score,
-  }));
+  const items = mixed.map((s) => ({ id: s.test_index, fraud: s.rf.label === 1, risk: Math.round(s.rf.score * 100) }));
   return (
     <div className="ticker" aria-hidden="true">
       <div className="track">
         {[...items, ...items].map((it, i) => (
           <div key={i} className={`chip ${it.fraud ? "f" : ""}`}>
-            #{it.id} · {it.fraud ? "FRAUD" : "legit"} {it.score.toFixed(2)}
+            <span className="dot" />
+            <span className="txn">Txn {it.id.toLocaleString("en-US")}</span>
+            <b>{it.fraud ? "Fraud" : "Legit"}</b>
+            <span className="risk">risk {it.risk}%</span>
           </div>
         ))}
       </div>

@@ -34,7 +34,7 @@ export default function VerdictCollapse({ label, score, run, delay = 0, big }: P
           className={`verdict ${label === 1 ? "bad" : "good"}`}
           initial={reduce ? false : { scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 420, damping: 18 }}
+          transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
         >
           {label === 1 ? "Fraud" : "Legit"}
         </motion.div>
@@ -45,7 +45,7 @@ export default function VerdictCollapse({ label, score, run, delay = 0, big }: P
         <motion.i
           initial={false}
           animate={{ width: done ? `${Math.max(2, Math.round(score * 100))}%` : "0%" }}
-          transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
+          transition={{ type: "spring", bounce: 0, duration: 0.8 }}
         />
       </div>
       <div className="muted small">Fraud probability {done ? `${(score * 100).toFixed(1)}%` : "…"}</div>

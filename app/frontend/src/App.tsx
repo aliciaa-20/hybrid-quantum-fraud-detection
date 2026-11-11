@@ -25,10 +25,9 @@ export default function App() {
       <AnimatePresence mode="wait">
         <motion.main
           key={location.pathname}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.28, ease: [0.2, 0.8, 0.2, 1] }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0, transition: { type: "spring", bounce: 0, duration: 0.5 } }}
+          exit={{ opacity: 0, transition: { duration: 0.1 } }}
         >
           <Routes location={location}>
             <Route path="/" element={<Landing />} />

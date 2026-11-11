@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getSamples, liveScore } from "../api";
 import type { LiveResult, Sample } from "../api";
 import { ServerBanner, useServerStatus } from "../components/ServerStatus";
+import Reveal from "../components/Reveal";
 import ScoreCard from "../components/ScoreCard";
 
 type Filter = "all" | "fraud" | "legit";
@@ -65,12 +66,12 @@ export default function Explore() {
           ))}
         </div>
 
-        <div className="explore">
+        <Reveal className="explore" delay={0.1}>
           <ul className="sample-list" aria-label="Transactions">
             {shown.map((s) => (
               <li key={s.id}>
                 <button className={`sample-item ${selected?.id === s.id ? "on" : ""}`} onClick={() => pick(s)}>
-                  <span>#{s.test_index}</span>
+                  <span>Txn {s.test_index.toLocaleString("en-US")}</span>
                   <span className={s.actual === 1 ? "bad" : "muted"}>{s.actual === 1 ? "fraud" : "legit"}</span>
                   <span className="muted">RF {(s.rf.score * 100).toFixed(0)}%</span>
                 </button>
@@ -83,7 +84,7 @@ export default function Explore() {
               <p className="muted">Pick a transaction to see how each model scored it.</p>
             ) : (
               <>
-                <h2>Transaction #{selected.test_index}</h2>
+                <h2>Transaction {selected.test_index.toLocaleString("en-US")}</h2>
                 <p>
                   True label: <strong className={selected.actual === 1 ? "bad" : "good"}>
                     {selected.actual === 1 ? "Fraud" : "Legitimate"}</strong>
@@ -116,7 +117,7 @@ export default function Explore() {
               </>
             )}
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   );

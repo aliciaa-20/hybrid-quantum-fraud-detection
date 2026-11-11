@@ -1,7 +1,7 @@
 import Reveal from "../components/Reveal";
 
 const STEPS = [
-  { n: "1", title: "The data", text: "284,807 real card transactions, only 492 of them fraud (0.17%). The features are anonymized, so there is no merchant or amount to read." },
+  { n: "1", title: "The data", text: "283,726 real card transactions after removing duplicates, only 473 of them fraud (0.17%). The features are anonymized, so there is no merchant or amount to read." },
   { n: "2", title: "Pick 4 features", text: "Mutual information keeps 4 of the 30 features (V10, V12, V14, V17). Four features map neatly onto four qubits." },
   { n: "3", title: "Balance the classes", text: "SMOTE and ADASYN invent extra fraud examples for training only. The test set is never touched." },
   { n: "4", title: "Compare the models", text: "Random Forest, SVM and Logistic Regression against two quantum models: a kernel method (QSVM) and a variational classifier (VQC)." },

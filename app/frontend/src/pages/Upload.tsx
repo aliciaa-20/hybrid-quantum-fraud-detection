@@ -140,7 +140,7 @@ export default function Upload() {
                   <h2>{preview.name}</h2>
                   <p className="muted">{preview.rows.toLocaleString("en-US")} rows · {preview.kb} KB</p>
                   {preview.missing.length > 0 ? (
-                    <p className="bad" role="alert">Missing column{preview.missing.length > 1 ? "s" : ""}: {preview.missing.join(", ")}. Your file needs {REQUIRED.join(", ")}.</p>
+                    <p className="bad" role="alert">Missing column{preview.missing.length > 1 ? "s" : ""}: {preview.missing.join(", ")}. See \u201cBringing your own CSV?\u201d for the format.</p>
                   ) : (
                     <ul className="plan" aria-label="What will run">
                       <li className="ok">Random Forest scores all {preview.rows.toLocaleString("en-US")} rows</li>
@@ -162,26 +162,38 @@ export default function Upload() {
               <div className="callout bad-callout" role="alert">
                 <strong>That didn't work.</strong>
                 <p>{error}</p>
-                <p className="muted small">Check the format guide on the right, or start over with one of the sample sets.</p>
+                <p className="muted small">Open "Bringing your own CSV?" on the right for the format, or start over with a sample set.</p>
               </div>
             )}
           </Reveal>
 
           <Reveal delay={0.1}>
             <aside className="guide">
-              <h3>What the file should look like</h3>
-              <div className="mini-table" role="table" aria-label="Example CSV">
-                <div className="mt-row mt-head" role="row">{REQUIRED.map((c) => <span key={c} role="columnheader">{c}</span>)}</div>
-                {[["-0.25", "0.47", "-0.31", "0.04"], ["-3.57", "-3.64", "-5.54", "-5.14"], ["0.75", "-1.05", "0.46", "0.09"]].map((r, i) => (
-                  <div className="mt-row" role="row" key={i}>{r.map((v, j) => <span key={j} role="cell">{v}</span>)}</div>
-                ))}
-              </div>
-              <ul className="tips">
-                <li>One transaction per row, numbers only. Extra columns are ignored.</li>
-                <li>These four are anonymized PCA components, so there is nothing meaningful to type by hand. Use the sample sets or export from the dataset.</li>
-                <li>Random Forest handles up to {caps ? caps.rf.toLocaleString("en-US") : "50,000"} rows. The experimental quantum models are slower: QSVM up to {caps?.qsvm ?? 25}, VQC up to {caps?.vqc ?? 200}.</li>
-                <li>Values far outside the training range are still scored but flagged.</li>
-              </ul>
+              <h3>How it works</h3>
+              <ol className="how">
+                <li><strong>Add transactions.</strong> Try a sample set, or bring your own CSV.</li>
+                <li><strong>Three models vote.</strong> A classical Random Forest scores every row. Two experimental quantum models join in on small files.</li>
+                <li><strong>See who agrees.</strong> Rows where the models disagree are flagged, and you can download everything.</li>
+              </ol>
+              <details className="fmt">
+                <summary>Bringing your own CSV?</summary>
+                <p>
+                  Each row needs four numbers, named {REQUIRED.join(", ")}. The original card data hides real details like
+                  amount and merchant by turning them into anonymous numbers for privacy. These four turned out to be the
+                  most useful, so they are all the models see.
+                </p>
+                <div className="mini-table" role="table" aria-label="Example CSV">
+                  <div className="mt-row mt-head" role="row">{REQUIRED.map((c) => <span key={c} role="columnheader">{c}</span>)}</div>
+                  {[["-0.25", "0.47", "-0.31", "0.04"], ["-3.57", "-3.64", "-5.54", "-5.14"]].map((r, i) => (
+                    <div className="mt-row" role="row" key={i}>{r.map((v, j) => <span key={j} role="cell">{v}</span>)}</div>
+                  ))}
+                </div>
+                <p className="muted small">
+                  Extra columns are ignored. Random Forest handles up to {caps ? caps.rf.toLocaleString("en-US") : "50,000"} rows;
+                  QSVM up to {caps?.qsvm ?? 25} and VQC up to {caps?.vqc ?? 200}, because they are slower. Values far outside the
+                  training range are still scored but flagged.
+                </p>
+              </details>
             </aside>
           </Reveal>
         </div>

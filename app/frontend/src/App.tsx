@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
 import { NavLink, Route, Routes, useLocation } from "react-router-dom";
 import Backdrop from "./components/Backdrop";
+import Footer from "./components/Footer";
 import { APP_NAME } from "./config";
 import About from "./pages/About";
 import Explore from "./pages/Explore";
@@ -10,6 +12,9 @@ import Upload from "./pages/Upload";
 
 export default function App() {
   const location = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0); // each page opens at the top
+  }, [location.pathname]);
   return (
     <>
       <Backdrop />
@@ -38,9 +43,7 @@ export default function App() {
           </Routes>
         </motion.main>
       </AnimatePresence>
-      <footer className="site-footer">
-        Experimental research demo. Quantum models run on a simulator. Nothing you upload is stored.
-      </footer>
+      <Footer />
     </>
   );
 }

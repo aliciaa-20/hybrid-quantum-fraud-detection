@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getSamples, liveScore } from "../api";
 import type { LiveResult, Sample } from "../api";
 import Reveal from "../components/Reveal";
-import StarButton from "../components/StarButton";
 import ScoreCard from "../components/ScoreCard";
 import { ServerBanner, useServerStatus } from "../components/ServerStatus";
+import StarButton from "../components/StarButton";
 
 type Filter = "all" | "fraud" | "legit";
 const txn = (n: number) => n.toLocaleString("en-US");
@@ -13,19 +13,20 @@ export default function Explore() {
   const status = useServerStatus();
   const [samples, setSamples] = useState<Sample[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<Filter>("fraud");
+  const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<Sample | null>(null);
   const [live, setLive] = useState<LiveResult | null>(null);
   const [liveBusy, setLiveBusy] = useState(false);
   const [liveError, setLiveError] = useState<string | null>(null);
-  const featured = useRef<HTMLElement>(null);
+  const strip = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (status !== "ready") return;
     getSamples()
       .then((s) => {
         setSamples(s);
-        setSelected((cur) => cur ?? s.find((x) => x.actual === 1 && x.rf.label === 1) ?? s.find((x) => x.actual === 1) ?? s[0] ?? null); // never an empty state; misses are in the grid
+        // open on a fraud the Random Forest catches; misses are one click away in the strip
+        setSelected((cur) => cur ?? s.find((x) => x.actual === 1 && x.rf.label === 1) ?? s.find((x) => x.actual === 1) ?? s[0] ?? null);
       })
       .catch((e) => setError(e.message));
   }, [status]);
@@ -35,13 +36,30 @@ export default function Explore() {
     [samples, filter],
   );
   const frauds = samples.filter((s) => s.actual === 1).length;
+  const idx = selected ? shown.findIndex((s) => s.id === selected.id) : -1;
 
-  const pick = (s: Sample) => {
+  const choose = (s: Sample) => {
     setSelected(s);
     setLive(null);
     setLiveError(null);
-    featured.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const step = (d: number) => {
+    if (!shown.length) return;
+    choose(shown[(Math.max(idx, 0) + d + shown.length) % shown.length]);
+  };
+  const shuffle = () => shown.length && choose(shown[Math.floor(Math.random() * shown.length)]);
+  const changeFilter = (f: Filter) => {
+    setFilter(f);
+    const first = samples.find((s) => f === "all" || (f === "fraud" ? s.actual === 1 : s.actual === 0));
+    if (first) choose(first);
+  };
+
+  // keep the chosen tile centred in the strip
+  useEffect(() => {
+    const box = strip.current;
+    const el = box?.querySelector<HTMLElement>(`[data-id="${selected?.id}"]`);
+    if (box && el) box.scrollTo({ left: el.offsetLeft - box.clientWidth / 2 + el.clientWidth / 2, behavior: "smooth" });
+  }, [selected, filter]);
 
   const runLive = async () => {
     if (!selected) return;
@@ -68,8 +86,41 @@ export default function Explore() {
         </p>
         {error && <p className="bad" role="alert">{error}</p>}
 
+        <Reveal>
+          <div className="picker">
+            <div className="filters" role="group" aria-label="Filter transactions">
+              {(["all", "legit", "fraud"] as Filter[]).map((f) => (
+                <button key={f} className={filter === f ? "" : "secondary"} onClick={() => changeFilter(f)} aria-pressed={filter === f}>
+                  {f === "fraud" ? "Fraud" : f === "legit" ? "Legit" : "All"}
+                </button>
+              ))}
+            </div>
+            <div className="stepper">
+              <button className="secondary round" onClick={() => step(-1)} aria-label="Previous transaction">←</button>
+              <span className="muted small count">{idx >= 0 ? `${idx + 1} of ${shown.length}` : `${shown.length} transactions`}</span>
+              <button className="secondary round" onClick={() => step(1)} aria-label="Next transaction">→</button>
+              <button className="secondary" onClick={shuffle}>Shuffle</button>
+            </div>
+          </div>
+          <div className="strip" ref={strip} aria-label="Transactions">
+            {shown.map((s) => {
+              const risk = Math.round(s.rf.score * 100);
+              return (
+                <button key={s.id} data-id={s.id} className={`tile ${selected?.id === s.id ? "on" : ""}`} onClick={() => choose(s)} aria-pressed={selected?.id === s.id}>
+                  <span className="tile-top">
+                    <span className="tile-num">Txn {txn(s.test_index)}</span>
+                    <span className={`pill ${s.actual === 1 ? "f" : "l"}`}>{s.actual === 1 ? "Fraud" : "Legit"}</span>
+                  </span>
+                  <span className="tile-bar" aria-hidden="true"><i style={{ width: `${Math.max(2, risk)}%` }} /></span>
+                  <span className="tile-risk">Random Forest risk {risk}%</span>
+                </button>
+              );
+            })}
+          </div>
+        </Reveal>
+
         {selected && (
-          <section className="featured" ref={featured} aria-label="Selected transaction">
+          <section className="featured" aria-label="Selected transaction">
             <div className="featured-head">
               <div>
                 <p className="eyebrow">Selected transaction</p>
@@ -83,7 +134,7 @@ export default function Explore() {
               {Object.entries(selected.features).map(([k, v]) => (
                 <span key={k} className="feat"><em>{k}</em> {v.toFixed(2)}</span>
               ))}
-              <span className="muted small">anonymized PCA components from the public ULB dataset</span>
+              <span className="muted small">anonymized numbers from the public dataset</span>
             </p>
             <div className="cards3">
               <ScoreCard model="Random Forest" result={selected.rf} actual={selected.actual} run={selected.id} />
@@ -108,34 +159,6 @@ export default function Explore() {
             )}
           </section>
         )}
-
-        <Reveal>
-          <div className="grid-head">
-            <h3>Pick another transaction</h3>
-            <div className="filters" role="group" aria-label="Filter transactions">
-              {(["fraud", "legit", "all"] as Filter[]).map((f) => (
-                <button key={f} className={filter === f ? "" : "secondary"} onClick={() => setFilter(f)} aria-pressed={filter === f}>
-                  {f === "fraud" ? "Known fraud" : f === "legit" ? "Legitimate" : "All"}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-        <div className="tiles">
-          {shown.map((s) => {
-            const risk = Math.round(s.rf.score * 100);
-            return (
-              <button key={s.id} className={`tile ${selected?.id === s.id ? "on" : ""}`} onClick={() => pick(s)} aria-pressed={selected?.id === s.id}>
-                <span className="tile-top">
-                  <span className="tile-num">Txn {txn(s.test_index)}</span>
-                  <span className={`pill ${s.actual === 1 ? "f" : "l"}`}>{s.actual === 1 ? "Fraud" : "Legit"}</span>
-                </span>
-                <span className="tile-bar" aria-hidden="true"><i style={{ width: `${Math.max(2, risk)}%` }} /></span>
-                <span className="tile-risk">Random Forest risk {risk}%</span>
-              </button>
-            );
-          })}
-        </div>
       </section>
     </>
   );

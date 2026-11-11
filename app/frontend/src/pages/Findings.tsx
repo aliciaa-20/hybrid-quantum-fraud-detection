@@ -67,7 +67,7 @@ export default function Findings() {
   const vqcM = qv.find((r) => String(r["Model"]).startsWith("VQC") && r["Balancing"] === qBalancing);
   const pair = (r: typeof qsvm) => [
     { label: "F1", hint: "Balance of precision and recall", value: num(r?.["F1 Score"]) },
-    { label: "Precision", hint: "When it says fraud, how often it's right", value: num(r?.["Precision"]) },
+    { label: "Precision", hint: "Of everything it flagged, how much really was fraud", value: num(r?.["Precision"]) },
     { label: "Recall", hint: "Share of real fraud it catches", value: num(r?.["Recall"]) },
   ];
 
@@ -106,7 +106,7 @@ export default function Findings() {
             </Reveal>
 
             <Reveal>
-              <h2 className="section-title">1 · How well does each model catch fraud?</h2>
+              <h2 className="section-title">How well does each model catch fraud?</h2>
               <p className="muted">Pick a model and how it was trained. The bars move; the explanation underneath follows.</p>
               <div className="controls">
                 <Segmented label="Model" options={MODELS} value={model} onChange={setModel} />
@@ -115,7 +115,7 @@ export default function Findings() {
               <div className="panel">
                 {row && (
                   <MetricBars items={[
-                    { label: "Precision", hint: "When it cries fraud, how often it is right.", value: num(row["Precision"]) },
+                    { label: "Precision", hint: "Of everything it flagged as fraud, how much really was.", value: num(row["Precision"]) },
                     { label: "Recall", hint: "Of all real frauds, how many it caught.", value: num(row["Recall"]) },
                     { label: "F1 score", hint: "One score that balances precision and recall.", value: num(row["F1 Score"]) },
                     { label: "ROC AUC", hint: "How well it ranks fraud above legitimate, whatever the cut-off.", value: num(row["ROC AUC"]) },
@@ -137,7 +137,7 @@ export default function Findings() {
             </Reveal>
 
             <Reveal>
-              <h2 className="section-title">2 · What does it cost?</h2>
+              <h2 className="section-title">What does it cost?</h2>
               <p className="muted">Net benefit is the fraud value a model catches minus what it costs analysts to investigate its alerts. Switch the cut-off to see why it matters.</p>
               <div className="controls">
                 <Segmented label="Cut-off" options={[{ value: "default", label: "Default (0.5)" }, { value: "tuned", label: "Tuned for best F1" }]} value={mode} onChange={setMode} />
@@ -147,7 +147,7 @@ export default function Findings() {
                 <BarChart key={mode} bars={costBars} />
                 <p className="story">
                   {mode === "default"
-                    ? <>At the default cut-off, <strong className="bad">{losing} of {modeRows.length}</strong> settings lose money. Balancing the training data teaches models to cry wolf, and every false alarm costs an investigation.</>
+                    ? <>At the default cut-off, <strong className="bad">{losing} of {modeRows.length}</strong> settings lose money. Balancing the training data makes models over-suspicious, and every false alarm costs an investigation.</>
                     : <>Tuning the cut-off rescues the classical models, but the best quantum VQC setting still ends at <strong className="bad">{money(headline.vqcNet)}</strong>.</>}
                 </p>
                 {mode === "tuned" && <p className="caveat">{data.cost_benefit.caveat}</p>}
@@ -155,7 +155,7 @@ export default function Findings() {
             </Reveal>
 
             <Reveal>
-              <h2 className="section-title">3 · Quantum against quantum</h2>
+              <h2 className="section-title">Quantum against quantum</h2>
               <p className="muted">The quantum kernel method (QSVM) beats the variational one (VQC) head to head. This comparison only exists on a small, matched subset of the data.</p>
               <div className="controls">
                 <Segmented label="Training" options={BALANCING} value={qBalancing} onChange={setQBalancing} />
@@ -168,7 +168,7 @@ export default function Findings() {
             </Reveal>
 
             <Reveal>
-              <h2 className="section-title">4 · Read this before quoting a number</h2>
+              <h2 className="section-title">Read this before quoting a number</h2>
               <div className="caveats">
                 <div className="note"><strong>Real fraud is rare.</strong><p>About 0.17% of transactions. That is why accuracy is misleading and why precision and recall matter.</p></div>
                 <div className="note"><strong>Simulator, not hardware.</strong><p>The quantum models ran on a classical computer simulating a quantum one. Real hardware adds noise.</p></div>

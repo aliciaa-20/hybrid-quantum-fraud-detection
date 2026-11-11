@@ -8,7 +8,8 @@ import Reveal from "../components/Reveal";
 import { ServerBanner, useServerStatus } from "../components/ServerStatus";
 import Ticker from "../components/Ticker";
 import VerdictCollapse from "../components/VerdictCollapse";
-import WordReveal from "../components/WordReveal";
+import StarButton from "../components/StarButton";
+import TextPressure from "../components/TextPressure";
 
 const cbRows = (f: Findings, model: string) => f.cost_benefit.rows.filter((r) => r["Model"] === model);
 const bestNet = (f: Findings, model: string) => Math.max(...cbRows(f, model).map((r) => Number(r["Net Benefit ($)"])));
@@ -57,20 +58,24 @@ export default function Landing() {
       <section className="hero2">
         <div className="hero-in">
           <p className="eyebrow">Hybrid quantum fraud detection</p>
-          <h1>
-            <WordReveal text="Fraudsters," />
-            <WordReveal text="nice try." className="grad" delay={0.25} />
-          </h1>
+          <motion.h1
+            aria-label="Fraudsters, nice try."
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", bounce: 0, duration: 0.8 }}
+          >
+            <TextPressure segments={[{ text: "Fraudsters," }, { text: "nice try.", gradient: ["#ffc26b", "#ff7a59"] }]} />
+          </motion.h1>
           <p className="lede">
             Classical vs quantum, head to head on real credit card transactions. Spoiler: classical is winning.
           </p>
 
           <div className="cmd">
             <span>{ready ? "Pull a real transaction and let the model decide…" : "Waking the models…"}</span>
-            <button className="go" onClick={score} disabled={!ready}>Score it →</button>
+            <StarButton onClick={score} disabled={!ready}>Score it →</StarButton>
           </div>
 
-          <div className="result-slot">
+          <motion.div className="result-slot" initial={false} animate={{ height: picked ? "auto" : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.55 }}>
             <AnimatePresence mode="wait">
               {picked && (
                 <motion.div
@@ -89,7 +94,7 @@ export default function Landing() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
 
         <div className="stage" aria-hidden="true">

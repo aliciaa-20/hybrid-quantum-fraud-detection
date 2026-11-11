@@ -11,7 +11,7 @@ export default function BarChart({ bars }: { bars: Bar[] }) {
     <div className="barchart" role="img" aria-label={bars.map((b) => `${b.label} ${money(b.value)}`).join(", ")}>
       <div className="zero" />
       {bars.map((b, i) => {
-        const pct = (Math.abs(b.value) / max) * 46;
+        const pct = (Math.abs(b.value) / max) * 38;
         const neg = b.value < 0;
         return (
           <div key={b.label} className="bcol">

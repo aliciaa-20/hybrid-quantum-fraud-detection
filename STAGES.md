@@ -31,3 +31,15 @@ Status: not started / in progress / done
 - Fixed: `src/confusion_matrices.py` trained the Random Forest without `max_depth=10`, so its figure, the README and `demo.py` showed 67 caught / 28 missed instead of 68 / 27. Script, figure, README and demo corrected.
 - Fixed: Findings page counts now derive from the metrics shown (SVM cost-table counts differ by one).
 - Open (needs the author): decide whether to commit the untracked/modified paper files; confirm whether Table 4 should show the rerun values.
+
+## Remaining work (as of 2026-11-12)
+- [ ] Stage 8 deployment: user creates Render + Vercel accounts; deploy backend (render.yaml) and frontend (vercel.json); set ALLOWED_ORIGINS on Render and the API URL on Vercel.
+- [ ] Re-measure quantum latency on the host (0.1 CPU); lower QSVM/VQC row caps and LIVE_TIMEOUT_S if needed.
+- [ ] Live accuracy check on the deployed app (samples, upload, Findings) against results files.
+- [ ] Open the Findings page in Chrome and confirm the "Tuned on validation data" option shows real numbers.
+- [ ] Fresh whole-branch code review before merging.
+- [ ] Merge feature/fraudscope-app into main (user decides; never commit to main directly).
+- [ ] Paper edits (user decision): apply docs/PAPER_UPDATE_NOTES.md (validated thresholds, seeded VQC table, soften "QSVM beats VQC on every balancing").
+- [ ] Keep PDF/PPTX out of the repo unless the user says otherwise.
+- [ ] Optional: IBM hardware run via quantum.mahquantum.tech once the user explains what access it gives; access code never in chat, keys only in .env.
+- [ ] Update README with the live URL after deployment.
